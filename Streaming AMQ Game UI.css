@@ -1,0 +1,82 @@
+/* For 720 setup */
+.col-xs-9 {width: 66.6666667%;}
+
+#xpOuterContainer {display:none;}
+
+/* Buffer between Video and Characters */
+#qpAnimeContainer {margin-bottom: 80px;}
+
+/* Video Container */
+#qpVideoContainer {padding-top: 50%;}
+#qpHiderText {display:none;}
+
+/* Score Board */
+.qpScoreBoardNumber{font-size:16px}
+.qpScoreBoardEntry {line-height: 20px;}
+#qpStandingContainer{margin:0; max-height: 455px !important}
+#qpStandingContainer h3 {text-align: left; margin: 45px 0 5px 5px;}
+#qpStandingItemContainer{max-height: 400px !important}
+#qpScoreBoardEntryContainer{height:350px !important}
+#qpAnimeContainer > div:first-child {padding:0; width: 230px;}
+#qpStandingCorrectCount {text-shadow: none; font-size: 17px; text-align: right;}
+
+/* Anime Name */
+#qpAnimeNameContainer {margin-left: 0px;}
+#qpAnimeNameHider {margin-left:15px; top:0;}
+#qpAnimeName {text-align: left; position: static; transform:none; padding-left: 10px;}
+#qpCounter {display:none;}
+
+/* Anime Name to make it display song info*/
+#qpAnimeNameContainer, #qpAnimeNameHider{width: 610px; height: 110px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;}
+#qpAnimeNameHider{padding-top: 20px;}
+#qpAnimeNameContainer row:first-child {display:none;}
+#qpAnimeNameContainer .row {margin: 1.5px 0; line-height: 16px;}
+#qpAnimeNameContainer h5 {display:inline-block; width: 16%; text-align: right; font-size: 16px; margin: 0;}
+#qpAnimeNameContainer p {display:inline-block; width: 82%; text-align: left; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 0; vertical-align: middle; font-size: 14px;}
+
+/* Song Info */
+#qpInnerContainer {display:none;}
+#qpSongVideoLink {display:none;}
+#qpInfoHider {height: 100%; font-size: 50px;}
+#qpAnimeCenterContainer + .col-xs-3 > .qpSideContainer.floatingContainer {display:none;}
+#qpAnimeCenterContainer + .col-xs-3 .row:first-child {display:none;}
+#qpAnimeCenterContainer + .col-xs-3 .row {margin: 1.5px 0;}
+#qpAnimeCenterContainer + .col-xs-3 h5 {display:inline-block; width: 25%; text-align: right;}
+#qpAnimeCenterContainer + .col-xs-3 p {display:inline-block; width: 73%; text-align: left; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 0; vertical-align: bottom;}
+#qpCounterShadowHider {padding-top: 0;}
+#qpReportFeedbackContainer {display:none;}
+
+/* Video Player */
+#qpVideosUserHidden {display:none;}
+
+/* Chat */
+#gameChatContainer {height: 300px; position: absolute; left: 900px;top: 120px; width: 380px;}
+#gcChatMenu h5 {font-size: 14px;}
+
+/* Avatars */
+#qpAvatarRow { max-height: 200px;}
+
+/* Avatar Text
+.qpAvatarLevelText {display:none;}
+.qpAvatarNumberContainer {height: 30px !important; width: 44px !important; margin-top: -20px;}*/
+
+/* Song Selector */
+#qpAnswerInputContainer{margin-top: -300px; z-index: 50;}
+.awesomplete > ul.ps {max-height:240px;}
+
+/* Volume/ Settings */
+#qpOptionContainer {height: 28px;}
+#qpQualityList {box-shadow: 0 0; margin-bottom: 5px;}
+#qpVolume, #qpOptionContainer .qpMenuItem {margin-top: 2px;}
+
+/*Move Menu stuff offscreen*/
+.topRightBackButton{left: 1300px;}
+#qpReturnToLobbyButton{left: 1420px;}
+#qpOptionContainer {right: -430px;}
+
+/*Song Counter Container (made through custom js)*/
+#songCounterContainer {background-color:#424242; box-shadow: 0 0 10px 2px rgb(0, 0, 0); width: 385px; padding: 8px; position: absolute; left: 900px; top: 0;}
+#songCounterContainer .leftColumn {width: 160px; display: inline-block;}
+#songCounterContainer .rightColumn {width: 160px; display: inline-block;}
+#songCounterContainer h5 {display:inline-block; width: 130px; text-align: right; margin: 2px 0px}
+#songCounterContainer p {display:inline-block; width: 30px; text-align: left; margin: 2px 0px}

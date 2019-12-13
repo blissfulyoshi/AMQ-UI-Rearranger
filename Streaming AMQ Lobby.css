@@ -1,0 +1,10 @@
+/* Room Settings Button */
+#lnSettingsButton {right: -200px;}
+
+/* Lobby Player Counter */
+#lobbyCountContainer {transform: rotate(-90deg); right: 130px; top: -130px; z-index: 200;}
+#lobbyTopCount, #lobbyCenterCount, #lobbyBottomCount {transform: rotate(90deg);}
+
+/* Player Dissplay */
+.lobbyAvatarRow{display: inline-block; width: 30%; margin: 0 20px 0 20px;}
+#lobbyAvatarContainer .lobbyAvatar {left: 50%;}
