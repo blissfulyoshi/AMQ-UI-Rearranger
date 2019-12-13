@@ -2,7 +2,7 @@
 // @name         AMQ-UI-Rearranger
 // @namespace    https://github.com/blissfulyoshi
 // @version      0.1
-// @description  Create a Song Counter in AMQ
+// @description  Rearrange AMQ UI to provide more information
 // @match        https://animemusicquiz.com/
 // @grant        none
 // ==/UserScript==
