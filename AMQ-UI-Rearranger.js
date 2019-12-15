@@ -1,13 +1,12 @@
 // ==UserScript==
 // @name         AMQ-UI-Rearranger
 // @namespace    https://github.com/blissfulyoshi
-// @version      0.1
-// @description  Rearrange AMQ UI to provide more information
+// @version      0.2
+// @description  Create a Song Counter in AMQ
 // @match        https://animemusicquiz.com/
 // @grant        none
 // ==/UserScript==
 
-var songCounter = 0;
 var openingCounter = 0;
 var endingCounter = 0;
 var insertCounter = 0;
@@ -18,15 +17,12 @@ var answerInformation = [];
 var playerScores = [];
 
 function ResetSongCounter() {
-	songCounter = 0;
 	openingCounter = 0;
 	endingCounter = 0;
 	insertCounter = 0;
 	songData = [];
     answerInformation = [];
-    setTimeout(function(){
-        updateSongCounter();
-    }, 10000);
+    updateSongCounter();
 }
 
 //add the Song Counter
@@ -35,25 +31,25 @@ function AddSongCounter() {
 	`<div class="leftColumn">
 		<div class="row">
 			<h5>
-				<b>Songs</b>
+				<b id="SongCounterLabel">Songs</b>
 			</h5>
 			<p id="SongCounter">0</p>
 		</div>
 		<div class="row">
 			<h5>
-				<b>Openings (47%)</b>
+				<b id="OpeningCounterLabel">Openings</b>
 			</h5>
 			<p id="OpeningCounter">0</p>
 		</div>
 		<div class="row">
 			<h5>
-				<b>Endings (30%)</b>
+				<b id="EndingCounterLabel">Endings</b>
 			</h5>
 			<p id="EndingCounter">0</p>
 		</div>
 		<div class="row">
 			<h5>
-				<b>Insert (23%)</b>
+				<b id="InsertCounterLabel">Inserts</b>
 			</h5>
 			<p id="InsertCounter">0</p>
 		</div>
@@ -81,7 +77,6 @@ function AddSongCounter() {
 
 //check for song type
 function checkForSongType() {
-	songCounter++;
 	var songType = document.querySelector('#qpSongType').innerText;
 	if (songType.includes('Opening')) {
 		openingCounter++;
@@ -96,12 +91,36 @@ function checkForSongType() {
 
 //check for song type
 function updateSongCounter() {
-	document.querySelector('#SongCounter').innerText = songCounter;
+	document.querySelector('#SongCounter').innerText = document.querySelector('#qpCurrentSongCount').innerText;
 	document.querySelector('#OpeningCounter').innerText = openingCounter;
 	document.querySelector('#EndingCounter').innerText = endingCounter;
 	document.querySelector('#InsertCounter').innerText = insertCounter;
     document.querySelector('#AvgScore').innerText = GetAverageScore();
     document.querySelector('#Cutoff').innerText = GetScoreOfPlace(40);
+}
+
+function updateSongCounterLabels() {
+    // There are effectively 2 song counts: the one set in the options, and the actual song count on the ingame counter
+    // use the actual song count for display but use the options value to set the predicted percentages
+    // Bug: however the actualSongCount remains a ? until the game fully loads, so it needs another trigger
+    let songCount = parseInt(document.querySelector('#mhNumberOfSongs').value);
+    let actualSongCount = document.querySelector('#qpTotalSongCount').innerText;
+    let openingCount = parseInt(document.querySelector('#mhOpenings').value);
+    let endingCount = parseInt(document.querySelector('#mhEndings').value);
+    //let insertCount = parseInt(document.querySelector('#mhInserts').value);
+    let randomCount = parseInt(document.querySelector('#mhRandomType').value);
+
+    // Get the estimate distribution for op/ed/ins as a percentage
+    // Assume random songs are evenly distributed among all types
+    // Bug: Does not take into account that op/ed/ins might be disabled
+    let openingPercentage = Math.round((openingCount + (randomCount / 3))/ songCount * 100);
+    let endingPercentage = Math.round((endingCount + (randomCount / 3))/ songCount * 100);
+    // To make sure insert percentage makes the total add up to 100%, just subtract the other 2 percentages from 100
+    let insertPercentage = 100 - openingPercentage - endingPercentage;
+	document.querySelector('#SongCounterLabel').innerText = "Songs (" + songCount + ')';
+	document.querySelector('#OpeningCounterLabel').innerText = "Openings (" + openingPercentage + '%)';
+	document.querySelector('#EndingCounterLabel').innerText = "Endings (" + endingPercentage + '%)';
+	document.querySelector('#InsertCounterLabel').innerText = "Inserts (" + insertPercentage + '%)';
 }
 
 function updateSongData() {
@@ -260,7 +279,6 @@ function EndRoundStuff() {
     if(IfRoundIsOver()) {
         console.log(JSON.stringify(answerInformation))
         PrintSongInfomration();
-        ResetSongCounter();
     }
 }
 
@@ -317,7 +335,13 @@ const CountodwnChangeCallback = function(mutationsList, observer) {
 	MirrorTimerText();
 };
 
-function setupMirrorTimer() {
+// Mutation Observer for countdown timer dropping
+const StartGameCallback = function(mutationsList, observer) {
+	updateSongCounterLabels();
+    ResetSongCounter();
+};
+
+function SetupMirrorTimer() {
     var countdown = document.querySelector('#qpHiderText');
     var countdownConfig = { characterData: true, childList: true};
     var countdownObserver = new MutationObserver(CountodwnChangeCallback);
@@ -325,25 +349,37 @@ function setupMirrorTimer() {
 }
 
 // Observe when the answer is revealed
-function observeAnswerShowing() {
+function ObserveAnswerShowing() {
     var countdown = document.querySelector('#qpAnimeNameHider');
     var countdownConfig = { attributes: true};
     var countdownObserver = new MutationObserver(SongCounterCallback);
     countdownObserver.observe(countdown, countdownConfig);
 }
 
-function startAmqScript() {
-    console.log("HAI");
-    AddSongCounter();
-    observeAnswerShowing();
-    setupMirrorTimer();
-    AddSecondarySongInfo();
+// Observe when the game starts
+function ObserveGameStart() {
+    var countdown = document.querySelector('#quizPage');
+    var countdownConfig = { attributes: true};
+    var countdownObserver = new MutationObserver(StartGameCallback);
+    countdownObserver.observe(countdown, countdownConfig);
+}
+
+function StartAmqScript() {
+    //check if script is already running to avoid running it twice
+    if (!document.querySelector('#SongCounter')) {
+        console.log("HAI");
+        ObserveGameStart();
+        AddSongCounter();
+        ObserveAnswerShowing();
+        SetupMirrorTimer();
+        AddSecondarySongInfo();
+    }
 }
 
 document.querySelector("#mpPlayButton").addEventListener('click', function() {
-    startAmqScript();
+    StartAmqScript();
 });
 
 document.querySelector("#mpRankedButton").addEventListener('click', function() {
-    startAmqScript();
+    StartAmqScript();
 });
