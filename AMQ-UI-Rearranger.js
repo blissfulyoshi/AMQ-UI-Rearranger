@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AMQ-UI-Rearranger
 // @namespace    https://github.com/blissfulyoshi
-// @version      0.2
+// @version      0.1
 // @description  Create a Song Counter in AMQ
 // @match        https://animemusicquiz.com/
 // @grant        none
@@ -129,9 +129,14 @@ function updateSongData() {
 		name: document.querySelector('#qpSongName').innerText ,
 		artist: document.querySelector('#qpSongArtist').innerText,
 		type: document.querySelector('#qpSongType').innerText,
-        correctCount: document.querySelectorAll('.qpAvatarAnswerContainer.rightAnswer').length
+        correctCount: document.querySelectorAll('.qpAvatarAnswerContainer.rightAnswer').length,
+        link: document.querySelector('#qpSongVideoLink').href
 	}
 	songData.push(currentSongData);
+
+    //To avoid having songdata being lost because of various incidents, print it in the console after each guess
+    var totalPlayers = document.querySelectorAll('#qpScoreBoardEntryContainer .qpStandingItem').length;
+    console.log(currentSongData.anime + ': ' + currentSongData.artist + ' - ' + currentSongData.name + ' (' + currentSongData.type + ') ' + currentSongData.correctCount + ' (' + Math.round(currentSongData.correctCount * 100/totalPlayers) + '%)');
 }
 
 function updateUserCount() {
@@ -268,11 +273,7 @@ function IfRoundIsOver() {
 }
 
 function PrintSongInfomration() {
-    console.log(JSON.stringify(songData));
-    var totalPlayers = document.querySelectorAll('#qpScoreBoardEntryContainer .qpStandingItem').length;
-    for (var i = 0; i < songData.length; i++) {
-        console.log(songData[i].anime + ': ' + songData[i].artist + ' - ' + songData[i].name + ' (' + songData[i].type + ') ' + songData[i].correctCount + ' (' + Math.round(songData[i].correctCount * 100/totalPlayers) + '%)')
-    }
+    console.log(JSON.stringify(songData, null, 2));
 }
 
 function EndRoundStuff() {
