@@ -20,10 +20,16 @@
 #qpAnimeContainer > div:first-child {padding:0; width: 230px;}
 #qpStandingCorrectCount {text-shadow: none; font-size: 17px; text-align: right;}
 
+/* Score Board Resizing (Experimental)*/
+#qpScoreBoardEntryContainer{transform: scale(0.71); width: 150%; transform-origin: left top;}
+#qpScoreBoardEntryContainer .qpScoreBoardNumber {font-size:24px}
+#qpScoreBoardEntryContainer .qpScoreBoardEntry {line-height: 33px;}
+#qpScoreBoardEntryContainer .qpsPlayerScore, #qpScoreBoardEntryContainer .qpsPlayerName {font-size:21px}
+
 /* Anime Name */
 #qpAnimeNameContainer {margin-left: 0px;}
 #qpAnimeNameHider {margin-left:15px; top:0;}
-#qpAnimeName {text-align: left; position: static; transform:none; padding-left: 10px;}
+#qpAnimeName {text-align: left; position: static; transform:none; padding-left: 10px; text-overflow: ellipsis; overflow: hidden;}
 #qpCounter {display:none;}
 
 /* Anime Name to make it display song info*/
