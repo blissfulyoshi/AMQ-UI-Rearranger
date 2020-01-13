@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AMQ-UI-Rearranger
 // @namespace    https://github.com/blissfulyoshi
-// @version      0.1.1
+// @version      0.2.0
 // @description  Create a Song Counter in AMQ
 // @match        https://animemusicquiz.com/
 // @grant        none
@@ -100,43 +100,29 @@ function updateSongCounter() {
 }
 
 function updateSongCounterLabels() {
-    // There are effectively 2 song counts: the one set in the options, and the actual song count on the ingame counter
-    // use the actual song count for display but use the options value to set the predicted percentages
-    // Bug: however the actualSongCount remains a ? until the game fully loads, so it needs another trigger
-    let songCount = parseInt(document.querySelector('#mhNumberOfSongs').value);
-    let actualSongCount = document.querySelector('#qpTotalSongCount').innerText;
-    let openingCount = parseInt(document.querySelector('#mhOpenings').value);
-    let endingCount = parseInt(document.querySelector('#mhEndings').value);
-    //let insertCount = parseInt(document.querySelector('#mhInserts').value);
-    let randomCount = parseInt(document.querySelector('#mhRandomType').value);
+    setTimeout(function() {
+        // There are effectively 2 song counts: the one set in the options, and the actual song count on the ingame counter
+        // use the actual song count for display but use the options value to set the predicted percentages
+        // Bug: however the actualSongCount remains a ? until the game fully loads, so it needs another trigger
+        let songCount = parseInt(document.querySelector('#mhNumberOfSongs').value);
+        let actualSongCount = document.querySelector('#qpTotalSongCount').innerText;
+        let openingCount = parseInt(document.querySelector('#mhOpenings').value);
+        let endingCount = parseInt(document.querySelector('#mhEndings').value);
+        //let insertCount = parseInt(document.querySelector('#mhInserts').value);
+        let randomCount = parseInt(document.querySelector('#mhRandomType').value);
 
-    // Get the estimate distribution for op/ed/ins as a percentage
-    // Assume random songs are evenly distributed among all types
-    // Bug: Does not take into account that op/ed/ins might be disabled
-    let openingPercentage = Math.round((openingCount + (randomCount / 3))/ songCount * 100);
-    let endingPercentage = Math.round((endingCount + (randomCount / 3))/ songCount * 100);
-    // To make sure insert percentage makes the total add up to 100%, just subtract the other 2 percentages from 100
-    let insertPercentage = 100 - openingPercentage - endingPercentage;
-	document.querySelector('#SongCounterLabel').innerText = "Songs (" + songCount + ')';
-	document.querySelector('#OpeningCounterLabel').innerText = "Openings (" + openingPercentage + '%)';
-	document.querySelector('#EndingCounterLabel').innerText = "Endings (" + endingPercentage + '%)';
-	document.querySelector('#InsertCounterLabel').innerText = "Inserts (" + insertPercentage + '%)';
-}
-
-function updateSongData() {
-	var currentSongData = {
-        anime: document.querySelector('#qpAnimeName').innerText,
-		name: document.querySelector('#qpSongName').innerText ,
-		artist: document.querySelector('#qpSongArtist').innerText,
-		type: document.querySelector('#qpSongType').innerText,
-        correctCount: document.querySelectorAll('.qpAvatarAnswerContainer.rightAnswer').length,
-        link: document.querySelector('#qpSongVideoLink').href
-	}
-	songData.push(currentSongData);
-
-    //To avoid having songdata being lost because of various incidents, print it in the console after each guess
-    var totalPlayers = document.querySelectorAll('#qpScoreBoardEntryContainer .qpStandingItem').length;
-    console.log(currentSongData.anime + ': ' + currentSongData.artist + ' - ' + currentSongData.name + ' (' + currentSongData.type + ') ' + currentSongData.correctCount + ' (' + Math.round(currentSongData.correctCount * 100/totalPlayers) + '%)');
+        // Get the estimate distribution for op/ed/ins as a percentage
+        // Assume random songs are evenly distributed among all types
+        // Bug: Does not take into account that op/ed/ins might be disabled
+        let openingPercentage = Math.round((openingCount + (randomCount / 3))/ songCount * 100);
+        let endingPercentage = Math.round((endingCount + (randomCount / 3))/ songCount * 100);
+        // To make sure insert percentage makes the total add up to 100%, just subtract the other 2 percentages from 100
+        let insertPercentage = 100 - openingPercentage - endingPercentage;
+        document.querySelector('#SongCounterLabel').innerText = "Songs (" + songCount + ')';
+        document.querySelector('#OpeningCounterLabel').innerText = "Openings (" + openingPercentage + '%)';
+        document.querySelector('#EndingCounterLabel').innerText = "Endings (" + endingPercentage + '%)';
+        document.querySelector('#InsertCounterLabel').innerText = "Inserts (" + insertPercentage + '%)';
+    }, 500);
 }
 
 function updateUserCount() {
@@ -175,12 +161,6 @@ function AddSecondarySongInfo() {
 	document.querySelector("#qpAnimeNameContainer").appendChild(secondarySongInfoContainer);
 }
 
-function CopyToSecondarySongInfo() {
-    document.querySelector('#SecondarySongName').innerText = document.querySelector('#qpSongName').innerText;
-	document.querySelector('#SecondaryArtistName').innerText = document.querySelector('#qpSongArtist').innerText;
-	document.querySelector('#SecondarySongType').innerText = document.querySelector('#qpSongType').innerText;
-}
-
 function GetAnswerInformation() {
     var players = document.querySelectorAll('.qpAvatarCenterContainer');
 
@@ -200,19 +180,23 @@ function GetAnswerInformation() {
             answerInformation[i] = {
                 playerName: playerName,
                 playerScore: playerScore,
-                onPlayerList: [onPlayerList],
-                playerAnswer: [playerAnswer],
-                rightAnswer: [rightAnswer]
+                // onPlayerList: [onPlayerList],
+                // playerAnswer: [playerAnswer],
+                // rightAnswer: [rightAnswer]
             }
         }
         else {
             answerInformation[i].playerScore = playerScore;
-            answerInformation[i].onPlayerList.push(onPlayerList);
-            answerInformation[i].playerAnswer.push(playerAnswer);
-            answerInformation[i].rightAnswer.push(rightAnswer);
+            // answerInformation[i].onPlayerList.push(onPlayerList);
+            // answerInformation[i].playerAnswer.push(playerAnswer);
+            // answerInformation[i].rightAnswer.push(rightAnswer);
             playerScores[i] = playerScore;
         }
     }
+}
+
+function GetRig(playerInformation) {
+    return playerInformation.onPlayerList.filter(rig => rig === true).length;
 }
 
 function IfRoundIsOver() {
@@ -221,14 +205,24 @@ function IfRoundIsOver() {
     return currentSongCount === totalSongCount;
 }
 
-function PrintSongInfomration() {
+function PrintSongInformation() {
     console.log(JSON.stringify(songData, null, 2));
+}
+
+function PrintRanking() {
+    answerInformation.sort(function(a, b){return b.playerScore-a.playerScore});
+    let ranking = '';
+    for (var i = 0; i < answerInformation.length; i++) {
+        ranking += (i + 1) + ': ' + answerInformation[i].playerName + ' (' + answerInformation[i].playerScore + ')\n'
+    }
+    console.log(ranking)
 }
 
 function EndRoundStuff() {
     if(IfRoundIsOver()) {
-        console.log(JSON.stringify(answerInformation))
-        PrintSongInfomration();
+        //console.log(JSON.stringify(answerInformation))
+        PrintRanking();
+        PrintSongInformation();
     }
 }
 
@@ -262,15 +256,56 @@ const SongCounterCallback = function(mutationsList, observer) {
 			if (document.querySelector('#qpAnimeNameHider').classList.contains('hide'))
 			{
 				checkForSongType();
-                		GetAnswerInformation();
+                GetAnswerInformation();
 				updateSongCounter();
 				updateUserCount();
-				updateSongData();
-				CopyToSecondarySongInfo();
-                		EndRoundStuff();
+                EndRoundStuff();
 			}
         }
     }
+};
+
+// Copied from AMQ's js
+// Translates type to the correct output
+function convertSontTypeToText(type, typeNumber) {
+    switch (type) {
+		case 1: return "Opening " + typeNumber;
+		case 2: return "Ending " + typeNumber;
+		case 3: return "Insert Song";
+	}
+}
+
+function copyToSecondarySongInfo(result) {
+    document.querySelector('#SecondarySongName').innerText = result.songInfo.songName;
+	document.querySelector('#SecondaryArtistName').innerText = result.songInfo.artist;
+	document.querySelector('#SecondarySongType').innerText = convertSontTypeToText(result.songInfo.type, result.songInfo.typeNumber);
+}
+
+function updateSongData(result) {
+    var videoLink = (result.songInfo.urlMap.catbox && result.songInfo.urlMap.catbox['720']) ? result.songInfo.urlMap.catbox['720'] :
+                   (result.songInfo.urlMap.animethemes && result.songInfo.urlMap.animethemes['720']) ? result.songInfo.urlMap.animethemes['720'] :
+                   (result.songInfo.urlMap.openingsmoe && result.songInfo.urlMap.openingsmoe['720']) ? result.songInfo.urlMap.openingsmoe['720'] :
+                    (result.songInfo.urlMap.catbox && result.songInfo.urlMap.catbox['480']) ? result.songInfo.urlMap.catbox['480'] : ""
+    var currentSongData = {
+        animeEng: result.songInfo.animeNames.english,
+        animeRomaji: result.songInfo.animeNames.romaji,
+		songName: result.songInfo.songName,
+		artist: result.songInfo.artist,
+		type: convertSontTypeToText(result.songInfo.type, result.songInfo.typeNumber),
+        correctCount: result.players.filter((player) => player.correct).length,
+        LinkVideo: videoLink,
+        LinkMp3: result.songInfo.urlMap.catbox['0']
+	}
+	songData.push(currentSongData);
+
+    //To avoid having songdata being lost because of various incidents, print it in the console after each guess
+    var totalPlayers = result.players.length;
+    console.log(currentSongData.animeEng + ': ' + currentSongData.artist + ' - ' + currentSongData.songName + ' (' + currentSongData.type + ') ' + currentSongData.correctCount + ' (' + Math.round(currentSongData.correctCount * 100/totalPlayers) + '%)');
+}
+
+function secondSongCounterCallback(result) {
+    copyToSecondarySongInfo(result);
+    updateSongData(result);
 };
 
 function MirrorTimerText() {
@@ -321,6 +356,11 @@ function StartAmqScript() {
         ObserveAnswerShowing();
         SetupMirrorTimer();
         AddSecondarySongInfo();
+
+        document.addEventListener('answer results', e => console.log(e));
+        new Listener("answer results", function (result) {
+            secondSongCounterCallback(result)
+        }).bindListener();
     }
 }
 
