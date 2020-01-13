@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AMQ-UI-Rearranger
 // @namespace    https://github.com/blissfulyoshi
-// @version      0.1
+// @version      0.1.1
 // @description  Create a Song Counter in AMQ
 // @match        https://animemusicquiz.com/
 // @grant        none
@@ -215,57 +215,6 @@ function GetAnswerInformation() {
     }
 }
 
-function GetRig(playerInformation) {
-    return playerInformation.onPlayerList.filter(rig => rig === true).length;
-}
-
-function WriteRigToChat() {
-    var enterEvent = new KeyboardEvent('keypress', {altKey:false,
-                                           bubbles: true,
-                                           cancelBubble: false,
-                                           cancelable: true,
-                                           charCode: 0,
-                                           code: "Enter",
-                                           composed: true,
-                                           ctrlKey: false,
-                                           currentTarget: null,
-                                           defaultPrevented: true,
-                                           detail: 0,
-                                           eventPhase: 0,
-                                           isComposing: false,
-                                           isTrusted: true,
-                                           key: "Enter",
-                                           keyCode: 13,
-                                           location: 0,
-                                           metaKey: false,
-                                           repeat: false,
-                                           returnValue: false,
-                                           shiftKey: false,
-                                           type: "keydown",
-                                           which: 13});
-    var chatInput = document.querySelector('#gcInput');
-    //to prevent errors, make sure there is an entry for player 2
-    if (answerInformation[1]) {
-        chatInput.value = answerInformation[0].playerName + ' vs ' + answerInformation[1].playerName +
-            " score: " + answerInformation[0].playerScore + " - " + answerInformation[1].playerScore +
-            " rig: " + GetRig(answerInformation[0]) + " - " + GetRig(answerInformation[1]);
-    }
-    else {
-        chatInput.value = answerInformation[0].playerName +
-            " score: " + answerInformation[0].playerScore +
-            " rig: " + GetRig(answerInformation[0]);
-    }
-    chatInput.dispatchEvent(enterEvent);
-}
-
-function WriteRigToLevel() {
-    //There are 2 lvl fields for every character
-    let levelField = document.querySelectorAll('.qpAvatarLevelText');
-    for (var i=0; i < levelField.length; i++) {
-        levelField[i].innerText = GetRig(answerInformation[Math.round((i - 1)/2)]);
-    }
-}
-
 function IfRoundIsOver() {
     let currentSongCount = parseInt(document.querySelector('#qpCurrentSongCount').innerText);
     let totalSongCount = parseInt(document.querySelector('#qpTotalSongCount').innerText);
@@ -313,14 +262,12 @@ const SongCounterCallback = function(mutationsList, observer) {
 			if (document.querySelector('#qpAnimeNameHider').classList.contains('hide'))
 			{
 				checkForSongType();
-                GetAnswerInformation();
+                		GetAnswerInformation();
 				updateSongCounter();
 				updateUserCount();
 				updateSongData();
-                CopyToSecondarySongInfo();
-                // WriteRigToLevel();
-                // WriteRigToChat();
-                EndRoundStuff();
+				CopyToSecondarySongInfo();
+                		EndRoundStuff();
 			}
         }
     }
