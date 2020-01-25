@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AMQ-UI-Rearranger
 // @namespace    https://github.com/blissfulyoshi
-// @version      0.2.0
+// @version      0.2.1
 // @description  Create a Song Counter in AMQ
 // @match        https://animemusicquiz.com/
 // @grant        none
@@ -136,23 +136,39 @@ function updateUserCount() {
 
 function AddSecondarySongInfo() {
 	var secondarySongInfo =
-	`<div class="row">
-		<h5>
-			<b>Song Name</b>
-		</h5>
-		<p id="SecondarySongName">0</p>
+	`<div class="SecondaryLeft">
+		<div class="row">
+			<h5>
+				<b>Romaji</b>
+			</h5>
+			<p id="SecondaryRomaji">0</p>
+		</div>
+        <div class="row">
+			<h5>
+				<b>Song Name</b>
+			</h5>
+			<p id="SecondarySongName">0</p>
+		</div>
+		<div class="row">
+			<h5>
+				<b>Artist</b>
+			</h5>
+			<p id="SecondaryArtistName">0</p>
+		</div>
 	</div>
-	<div class="row">
-		<h5>
-			<b>Artist</b>
-		</h5>
-		<p id="SecondaryArtistName">0</p>
-	</div>
-	<div class="row">
-		<h5>
-			<b>Type</b>
-		</h5>
-		<p id="SecondarySongType">0</p>
+	<div class="SecondaryRight">
+		<div class="row">
+			<h5>
+				<b>Type</b>
+			</h5>
+			<p id="SecondarySongType">0</p>
+		</div>
+		<div class="row">
+			<h5>
+				<b>Start Time</b>
+			</h5>
+			<p id="SecondaryStartTime">0</p>
+		</div>
 	</div>`;
 
 	var secondarySongInfoContainer = document.createElement('div');
@@ -163,6 +179,7 @@ function AddSecondarySongInfo() {
 
 function GetAnswerInformation() {
     var players = document.querySelectorAll('.qpAvatarCenterContainer');
+    var correctPlayers = [];
 
     //check if the player array needs to be resetted for a new game
     //playerName check is a pretty safe check if you're moving inbetween games, but definitely not the most robust
@@ -192,6 +209,14 @@ function GetAnswerInformation() {
             // answerInformation[i].rightAnswer.push(rightAnswer);
             playerScores[i] = playerScore;
         }
+        if (rightAnswer) {
+            correctPlayers.push(players[i].querySelector('.qpAvatarNameContainer span').innerText);
+        }
+    }
+
+    if (correctPlayers.length <= 5 && correctPlayers.length > 0) {
+        songData[songData.length-1].correctPlayers = correctPlayers;
+        console.log(correctPlayers);
     }
 }
 
@@ -275,10 +300,20 @@ function convertSontTypeToText(type, typeNumber) {
 	}
 }
 
+function sec2time(timeInSeconds) {
+    var pad = function(num, size) { return ('000' + num).slice(size * -1); },
+    minutes = Math.floor(timeInSeconds / 60) % 60,
+    seconds = Math.floor(timeInSeconds - minutes * 60);
+
+    return minutes + ':' + pad(seconds, 2);
+}
+
 function copyToSecondarySongInfo(result) {
     document.querySelector('#SecondarySongName').innerText = result.songInfo.songName;
 	document.querySelector('#SecondaryArtistName').innerText = result.songInfo.artist;
 	document.querySelector('#SecondarySongType').innerText = convertSontTypeToText(result.songInfo.type, result.songInfo.typeNumber);
+    document.querySelector('#SecondaryRomaji').innerText = result.songInfo.animeNames.romaji;
+    document.querySelector('#SecondaryStartTime').innerText = sec2time(quizVideoController.moePlayers[quizVideoController.currentMoePlayerId].startPoint) + ' / ' + sec2time(quizVideoController.moePlayers[quizVideoController.currentMoePlayerId].$player.find("video")[0].duration);
 }
 
 function updateSongData(result) {
@@ -293,6 +328,8 @@ function updateSongData(result) {
 		artist: result.songInfo.artist,
 		type: convertSontTypeToText(result.songInfo.type, result.songInfo.typeNumber),
         correctCount: result.players.filter((player) => player.correct).length,
+        startTime: quizVideoController.moePlayers[quizVideoController.currentMoePlayerId].startPoint, //quizVideoController seems to be a global variable that AMQ populateds to
+        songDuration: quizVideoController.moePlayers[quizVideoController.currentMoePlayerId].$player.find("video")[0].duration,
         LinkVideo: videoLink,
         LinkMp3: result.songInfo.urlMap.catbox['0']
 	}
