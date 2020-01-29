@@ -190,7 +190,6 @@ function aikatsuSongCounter(answer) {
     if (answer.toLowerCase().includes("aikatsu")) {
        aikatsuCounter++;
     }
-    document.querySelector("#AikatsuCount").innerText = aikatsuCounter;
 }
 
 function GetAnswerInformation() {
@@ -234,6 +233,10 @@ function GetAnswerInformation() {
             correctPlayers.push(players[i].querySelector('.qpAvatarNameContainer span').innerText);
         }
     }
+
+    //print AikatsuCounter results and reset it
+    document.querySelector("#AikatsuCount").innerText = aikatsuCounter;
+    aikatsuCounter = 0;
 
     if (correctPlayers.length <= 5 && correctPlayers.length > 0) {
         songData[songData.length-1].correctPlayers = correctPlayers;
