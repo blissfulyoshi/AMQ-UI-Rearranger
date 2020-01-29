@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AMQ-UI-Rearranger
 // @namespace    https://github.com/blissfulyoshi
-// @version      0.2.1
+// @version      0.2.2
 // @description  Create a Song Counter in AMQ
 // @match        https://animemusicquiz.com/
 // @grant        none
@@ -10,6 +10,7 @@
 var openingCounter = 0;
 var endingCounter = 0;
 var insertCounter = 0;
+var aikatsuCounter = 0;
 var songData = [];
 var answerInformation = [];
 
@@ -20,6 +21,7 @@ function ResetSongCounter() {
 	openingCounter = 0;
 	endingCounter = 0;
 	insertCounter = 0;
+    aikatsuCounter = 0;
 	songData = [];
     answerInformation = [];
     updateSongCounter();
@@ -55,6 +57,12 @@ function AddSongCounter() {
 		</div>
 	</div>
 	<div class="rightColumn">
+        <div class="row">
+			<h5>
+				<b>Aikatsu!</b>
+			</h5>
+			<p id="AikatsuCount">0</p>
+		</div>
 		<div class="row">
 			<h5>
 				<b>Avg Score</b>
@@ -177,6 +185,14 @@ function AddSecondarySongInfo() {
 	document.querySelector("#qpAnimeNameContainer").appendChild(secondarySongInfoContainer);
 }
 
+//counts the number of times Aikatsu is used an answer
+function aikatsuSongCounter(answer) {
+    if (answer.toLowerCase().includes("aikatsu")) {
+       aikatsuCounter++;
+    }
+    document.querySelector("#AikatsuCount").innerText = aikatsuCounter;
+}
+
 function GetAnswerInformation() {
     var players = document.querySelectorAll('.qpAvatarCenterContainer');
     var correctPlayers = [];
@@ -191,6 +207,11 @@ function GetAnswerInformation() {
         let onPlayerList = !players[i].querySelector('.qpAvatarStatus').classList.contains('hide');
         let playerAnswer = players[i].querySelector('.qpAvatarAnswerText').innerText;
         let rightAnswer = players[i].querySelector('.qpAvatarAnswerContainer').classList.contains('rightAnswer');
+
+        //Silly extra code to do with player answers
+        aikatsuSongCounter(playerAnswer);
+
+        //if starting a new game, the player array needs to be restarted to accept clean information
         if (resetPlayerArray) {
             let playerName = players[i].querySelector('.qpAvatarNameContainer span').innerText;
             playerScores[i] = playerScore;
@@ -245,7 +266,7 @@ function PrintRanking() {
 
 function EndRoundStuff() {
     if(IfRoundIsOver()) {
-        //console.log(JSON.stringify(answerInformation))
+        console.log("Aikatsu! Guess Count:" + aikatsuCounter);
         PrintRanking();
         PrintSongInformation();
     }
