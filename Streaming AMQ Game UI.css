@@ -19,6 +19,7 @@
 #qpScoreBoardEntryContainer{height:350px !important}
 #qpAnimeContainer > div:first-child {padding:0; width: 230px;}
 #qpStandingCorrectCount {text-shadow: none; font-size: 17px; text-align: right;}
+.qpsPlayerScore.rightAnswer { text-shadow: 0 0 1px #D6FF00, 0 0 15px #D6FF00, 0 0 30px #D6FF00}
 
 /* Score Board Resizing (Experimental)*/
 #qpScoreBoardEntryContainer{transform: scale(0.71); width: 150%; transform-origin: left top;}
@@ -37,8 +38,14 @@
 #qpAnimeNameHider{padding-top: 20px;}
 #qpAnimeNameContainer row:first-child {display:none;}
 #qpAnimeNameContainer .row {margin: 1.5px 0; line-height: 16px;}
-#qpAnimeNameContainer h5 {display:inline-block; width: 16%; text-align: right; font-size: 16px; margin: 0;}
-#qpAnimeNameContainer p {display:inline-block; width: 82%; text-align: left; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 0; vertical-align: middle; font-size: 14px;}
+#qpAnimeNameContainer h5 {display:inline-block; text-align: right; font-size: 16px; margin: 0;}
+#qpAnimeNameContainer p {display:inline-block; text-align: left; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin-bottom: 0; vertical-align: bottom; font-size: 14px;}
+.SecondaryLeft {width: 70%; display: inline-block}
+.SecondaryLeft h5 {width: 23%;}
+.SecondaryLeft p {width: 75%;}
+.SecondaryRight {width: 30%; display: inline-block}
+.SecondaryRight h5 {width: 47%;}
+.SecondaryRight p {width: 50%;}
 
 /* Song Info */
 #qpInnerContainer {display:none;}
