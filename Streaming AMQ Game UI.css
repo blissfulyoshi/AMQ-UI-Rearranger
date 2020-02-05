@@ -30,7 +30,7 @@
 /* Anime Name */
 #qpAnimeNameContainer {margin-left: 0px;}
 #qpAnimeNameHider {margin-left:15px; top:0;}
-#qpAnimeName {text-align: left; position: static; transform:none; padding-left: 10px; text-overflow: ellipsis; overflow: hidden;}
+#qpAnimeName {text-align: left; position: static; transform:none; padding-left: 10px; text-overflow: ellipsis; overflow: hidden; font-size: 22px !important;}
 #qpCounter {display:none;}
 
 /* Anime Name to make it display song info*/
@@ -63,8 +63,15 @@
 #qpVideosUserHidden {display:none;}
 
 /* Chat */
-#gameChatContainer {height: 300px; position: absolute; left: 900px;top: 120px; width: 380px;}
-#gcChatMenu h5 {font-size: 14px;}
+#gameChatContainer {height: 250px; position: absolute; left: 870px;top: 120px; width: 410px;}
+#gcChatMenu {height: 25px;}
+#gcChatMenu h5 {font-size: 14px; margin: 5px 0; width: 105%;}
+#gcMessageContainer {height: calc(100% - 23px); }
+#gcMessageContainer li {padding: 3px 0 3px 3px}
+#gcMessageContainer span {font-size: 14px;}
+#gcEmojiPickerOuterContainer {display:none}
+.gcInputContainer {height: 35px;}
+.gcInputContainer > .textAreaContainer {width: calc(100% - 10px)}
 
 /* Avatars */
 #qpAvatarRow { max-height: 200px;}
@@ -88,8 +95,11 @@
 #qpOptionContainer {right: -430px;}
 
 /*Song Counter Container (made through custom js)*/
-#songCounterContainer {background-color:#424242; box-shadow: 0 0 10px 2px rgb(0, 0, 0); width: 385px; padding: 8px; position: absolute; left: 900px; top: 0;}
-#songCounterContainer .leftColumn {width: 160px; display: inline-block;}
-#songCounterContainer .rightColumn {width: 160px; display: inline-block;}
-#songCounterContainer h5 {display:inline-block; width: 130px; text-align: right; margin: 2px 0px}
+#songCounterContainer {background-color:#424242; box-shadow: 0 0 10px 2px rgb(0, 0, 0); width: 410px; padding: 8px; position: absolute; left: 870px; top: 0;}
+#songCounterContainer .leftColumn {width: 155px; display: inline-block;}
+#songCounterContainer .middleColumn , #songCounterContainer .rightColumn {width: 115px; display: inline-block;}
+#songCounterContainer .leftColumn h5 {width: 130px;}
+#songCounterContainer h5 {display:inline-block; width: 85px; text-align: right; margin: 2px 0px}
 #songCounterContainer p {display:inline-block; width: 30px; text-align: left; margin: 2px 0px}
+
+#copySongData {display: block; position: absolute; left: 1400px; top: 200px; color: black;}
