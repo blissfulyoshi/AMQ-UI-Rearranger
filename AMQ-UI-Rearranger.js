@@ -11,6 +11,10 @@ var openingCounter = 0;
 var endingCounter = 0;
 var insertCounter = 0;
 var aikatsuCounter = 0;
+var starmyuCounter = 0;
+var conanCounter = 0;
+var enstarsCounter = 0;
+var precureCounter = 0;
 var songData = [];
 var answerInformation = [];
 
@@ -22,6 +26,10 @@ function ResetSongCounter() {
 	endingCounter = 0;
 	insertCounter = 0;
     aikatsuCounter = 0;
+    starmyuCounter = 0;
+    conanCounter = 0;
+    enstarsCounter = 0;
+    precureCounter = 0;
 	songData = [];
     answerInformation = [];
     updateSongCounter();
@@ -56,12 +64,38 @@ function AddSongCounter() {
 			<p id="InsertCounter">0</p>
 		</div>
 	</div>
-	<div class="rightColumn">
+	<div class="middleColumn">
+        <div class="row">
+			<h5>
+				<b>Conan</b>
+			</h5>
+			<p id="TotalConanCount">0</p>
+		</div>
+        <div class="row">
+			<h5>
+				<b>Precure</b>
+			</h5>
+			<p id="TotalPrecureCount">0</p>
+		</div>
+		<div class="row">
+			<h5>
+				<b>Enstars</b>
+			</h5>
+			<p id="TotalEnstarsCount">0</p>
+		</div>
+	</div>
+    <div class="rightColumn">
+        <div class="row">
+			<h5>
+				<b>STARMYU</b>
+			</h5>
+			<p id="TotalStarmyuCount">0</p>
+		</div>
         <div class="row">
 			<h5>
 				<b>Aikatsu!</b>
 			</h5>
-			<p id="AikatsuCount">0</p>
+			<p id="TotalAikatsuCount">0</p>
 		</div>
 		<div class="row">
 			<h5>
@@ -103,6 +137,11 @@ function updateSongCounter() {
 	document.querySelector('#OpeningCounter').innerText = openingCounter;
 	document.querySelector('#EndingCounter').innerText = endingCounter;
 	document.querySelector('#InsertCounter').innerText = insertCounter;
+    document.querySelector('#TotalConanCount').innerText = conanCounter;
+	document.querySelector('#TotalPrecureCount').innerText = precureCounter;
+	document.querySelector('#TotalEnstarsCount').innerText = enstarsCounter;
+    document.querySelector('#TotalAikatsuCount').innerText = aikatsuCounter;
+	document.querySelector('#TotalStarmyuCount').innerText = starmyuCounter;
     document.querySelector('#AvgScore').innerText = GetAverageScore();
     document.querySelector('#Cutoff').innerText = GetScoreOfPlace(40);
 }
@@ -167,6 +206,12 @@ function AddSecondarySongInfo() {
 	<div class="SecondaryRight">
 		<div class="row">
 			<h5>
+				<b>Aikatsu!</b>
+			</h5>
+			<p id="SecondaryAikatsuAnswerCount">0</p>
+		</div>
+		<div class="row">
+			<h5>
 				<b>Type</b>
 			</h5>
 			<p id="SecondarySongType">0</p>
@@ -186,15 +231,18 @@ function AddSecondarySongInfo() {
 }
 
 //counts the number of times Aikatsu is used an answer
-function aikatsuSongCounter(answer) {
-    if (answer.toLowerCase().includes("aikatsu")) {
-       aikatsuCounter++;
-    }
+function answerTitleCounter(answer, title) {
+    return answer.toLowerCase().includes(title) ? 1 : 0
 }
 
 function GetAnswerInformation() {
     var players = document.querySelectorAll('.qpAvatarCenterContainer');
     var correctPlayers = [];
+    var currentSongAikatsuCount = 0;
+    var currentSongStarmyuCount = 0;
+    var currentSongConanCount = 0;
+    var currentSongEnstarsCount = 0;
+    var currentSongPrecureCount = 0;
 
     //check if the player array needs to be resetted for a new game
     //playerName check is a pretty safe check if you're moving inbetween games, but definitely not the most robust
@@ -208,7 +256,11 @@ function GetAnswerInformation() {
         let rightAnswer = players[i].querySelector('.qpAvatarAnswerContainer').classList.contains('rightAnswer');
 
         //Silly extra code to do with player answers
-        aikatsuSongCounter(playerAnswer);
+        currentSongAikatsuCount += answerTitleCounter(playerAnswer, "aikatsu");
+        currentSongStarmyuCount += answerTitleCounter(playerAnswer, "starmyu");
+        currentSongConanCount += answerTitleCounter(playerAnswer, "detective conan") + answerTitleCounter(playerAnswer, "case closed") + answerTitleCounter(playerAnswer, "meitantei conan");
+        currentSongEnstarsCount += answerTitleCounter(playerAnswer, "ensemble stars") + answerTitleCounter(playerAnswer, "enstars");
+        currentSongPrecureCount += answerTitleCounter(playerAnswer, "precure") + answerTitleCounter(playerAnswer, "pretty cure") + answerTitleCounter(playerAnswer, "glitter force");
 
         //if starting a new game, the player array needs to be restarted to accept clean information
         if (resetPlayerArray) {
@@ -234,10 +286,15 @@ function GetAnswerInformation() {
         }
     }
 
-    //print AikatsuCounter results and reset it
-    document.querySelector("#AikatsuCount").innerText = aikatsuCounter;
-    aikatsuCounter = 0;
+    //Update the cumulative totals for fun numbers
+    aikatsuCounter += currentSongAikatsuCount;
+    starmyuCounter += currentSongStarmyuCount;
+    conanCounter += currentSongConanCount;
+    enstarsCounter += currentSongEnstarsCount;
+    precureCounter += currentSongPrecureCount;
+    document.querySelector("#SecondaryAikatsuAnswerCount").innerText = currentSongAikatsuCount;
 
+    //Print the users who got the song right
     if (correctPlayers.length <= 5 && correctPlayers.length > 0) {
         songData[songData.length-1].correctPlayers = correctPlayers;
         console.log(correctPlayers);
@@ -345,6 +402,7 @@ function updateSongData(result) {
                    (result.songInfo.urlMap.animethemes && result.songInfo.urlMap.animethemes['720']) ? result.songInfo.urlMap.animethemes['720'] :
                    (result.songInfo.urlMap.openingsmoe && result.songInfo.urlMap.openingsmoe['720']) ? result.songInfo.urlMap.openingsmoe['720'] :
                     (result.songInfo.urlMap.catbox && result.songInfo.urlMap.catbox['480']) ? result.songInfo.urlMap.catbox['480'] : ""
+    var activePlayers = document.querySelectorAll('#qpScoreBoardEntryContainer .qpStandingItem:not(.disabled)').length;
     var currentSongData = {
         animeEng: result.songInfo.animeNames.english,
         animeRomaji: result.songInfo.animeNames.romaji,
@@ -354,6 +412,8 @@ function updateSongData(result) {
         correctCount: result.players.filter((player) => player.correct).length,
         startTime: quizVideoController.moePlayers[quizVideoController.currentMoePlayerId].startPoint, //quizVideoController seems to be a global variable that AMQ populateds to
         songDuration: quizVideoController.moePlayers[quizVideoController.currentMoePlayerId].$player.find("video")[0].duration,
+        songNumber: parseInt(document.querySelector('#qpCurrentSongCount').innerText),
+        activePlayerCount: activePlayers,
         LinkVideo: videoLink,
         LinkMp3: result.songInfo.urlMap.catbox['0']
 	}
@@ -362,6 +422,27 @@ function updateSongData(result) {
     //To avoid having songdata being lost because of various incidents, print it in the console after each guess
     var totalPlayers = result.players.length;
     console.log(currentSongData.animeEng + ': ' + currentSongData.artist + ' - ' + currentSongData.songName + ' (' + currentSongData.type + ') ' + currentSongData.correctCount + ' (' + Math.round(currentSongData.correctCount * 100/totalPlayers) + '%)');
+}
+
+// Put Song data in textarea and copy to clipboard
+function CopySongData() {
+    document.querySelector('#songDataHolder').value = JSON.stringify(songData, null, 2);
+    document.querySelector('#songDataHolder').select();
+    document.execCommand('copy');
+}
+
+function AddSongDataHolder() {
+    var songDataHolder = document.createElement('textarea');
+	songDataHolder.id = 'songDataHolder';
+	document.querySelector("#gameChatPage").appendChild(songDataHolder);
+    var songDataCopyButton = document.createElement('button');
+    songDataCopyButton.id = 'copySongData'
+    songDataCopyButton.innerHTML = 'Copy';
+    document.querySelector("#gameChatPage").appendChild(songDataCopyButton);
+
+    document.querySelector("#copySongData").addEventListener('click', function() {
+        CopySongData();
+    });
 }
 
 function secondSongCounterCallback(result) {
@@ -380,7 +461,7 @@ const CountodwnChangeCallback = function(mutationsList, observer) {
 };
 
 // Mutation Observer for countdown timer dropping
-const StartGameCallback = function(mutationsList, observer) {
+function StartGameCallback() {
 	updateSongCounterLabels();
     ResetSongCounter();
 };
@@ -400,25 +481,20 @@ function ObserveAnswerShowing() {
     countdownObserver.observe(countdown, countdownConfig);
 }
 
-// Observe when the game starts
-function ObserveGameStart() {
-    var countdown = document.querySelector('#quizPage');
-    var countdownConfig = { attributes: true};
-    var countdownObserver = new MutationObserver(StartGameCallback);
-    countdownObserver.observe(countdown, countdownConfig);
-}
-
 function StartAmqScript() {
     //check if script is already running to avoid running it twice
     if (!document.querySelector('#SongCounter')) {
         console.log("HAI");
-        ObserveGameStart();
         AddSongCounter();
         ObserveAnswerShowing();
         SetupMirrorTimer();
         AddSecondarySongInfo();
+        AddSongDataHolder();
 
-        document.addEventListener('answer results', e => console.log(e));
+        new Listener('Game Starting', function () {
+            StartGameCallback();
+        }).bindListener();
+
         new Listener("answer results", function (result) {
             secondSongCounterCallback(result)
         }).bindListener();
