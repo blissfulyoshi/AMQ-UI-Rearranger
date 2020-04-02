@@ -4,10 +4,10 @@
 #xpOuterContainer {display:none;}
 
 /* Buffer between Video and Characters */
-#qpAnimeContainer {margin-bottom: 150px;}
+#qpAnimeContainer {margin-bottom: 80px;}
 
 /* Video Container */
-#qpVideoContainer {padding-top: 50%; margin-top: 7px;}
+#qpVideoContainerInner {display:none}
 #qpHiderText {display:none;}
 
 /* Score Board */
@@ -64,9 +64,10 @@
 
 /* Video Player */
 #qpVideosUserHidden {display:none;}
+#qpVideoContainer {display:none;}
 
 /* Chat */
-#gameChatContainer {height: 250px; position: absolute; left: 870px;top: 120px; width: 410px;}
+#gameChatContainer {height: 230px; position: absolute; left: 870px;top: 140px; width: 410px;}
 #gcChatMenu {height: 25px;}
 #gcChatMenu h5 {font-size: 14px; margin: 5px 0; width: 105%;}
 #gcMessageContainer {height: calc(100% - 23px); }
@@ -84,8 +85,8 @@
 .qpAvatarNumberContainer {height: 30px !important; width: 44px !important; margin-top: -20px;}*/
 
 /* Song Selector */
-#qpAnswerInputContainer{margin-top: -300px; z-index: 50;}
-.awesomplete > ul.ps {max-height:240px;}
+#qpAnswerInputContainer{margin-left: 1100px; z-index: 50; position: absolute;}
+.awesomplete > ul.ps {max-height:650px;}
 
 /* Volume/ Settings */
 #qpOptionContainer {height: 28px;}
@@ -105,7 +106,14 @@
 #songCounterContainer .rightColumn h5 {width: 85px;}
 #songCounterContainer .row{margin: 1px 0}
 #songCounterContainer h5 {display:inline-block; width: 60px; text-align: right; margin: 0;}
-#songCounterContainer h5:nth-child(9) {width: 50px;}
 #songCounterContainer p {display:inline-block; text-align: left; margin: 0;}
 
-#copySongData {display: block; position: absolute; left: 1400px; top: 200px; color: black;}
+/*Anime Name Counter Container (made through custom js)*/
+#playerInfoContainer {background-color:#424242; box-shadow: 0 0 10px 2px rgb(0, 0, 0); width: 100%; padding: 4px; margin-top: 5px;}
+#playerInfoContainer .leftColumn {width: 295px; display: inline-block;}
+#playerInfoContainer .rightColumn {width: 295px; display: inline-block;}
+#playerInfoContainer .row{margin: 1px 0}
+#playerInfoContainer h5 {display:inline-block; width: 230px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; text-align: right; margin: 0; vertical-align: middle;}
+#playerInfoContainer p {display:inline-block; width: 30px; text-align: left; margin: 0; font-size: 16px; vertical-align: middle;}
+
+#copySongData {display: block; position: absolute; left: 1400px; top: 70px; color: black;}
