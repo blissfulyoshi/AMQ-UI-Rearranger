@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AMQ-UI-Rearranger
 // @namespace    https://github.com/blissfulyoshi
-// @version      0.3.0
+// @version      0.3.1
 // @description  Create a Song Counter in AMQ
 // @match        https://animemusicquiz.com/
 // @grant        none
@@ -13,13 +13,10 @@ var insertCounter = 0;
 var aikatsuCounter = 0;
 var starmyuCounter = 0;
 var priparaCounter = 0;
-var score020Counter = 0;
-var score2040Counter = 0;
-var score4060Counter = 0;
-var score6080Counter = 0;
-var score80100Counter = 0;
+var scorePercentageCounter = [0,0,0,0,0,0,0,0,0,0];
 var songData = [];
 var answerInformation = [];
+var fullAnimeList = [];
 
 //separate array to track player scores only so I don't have to sort an array
 var playerScores = [];
@@ -31,11 +28,7 @@ function ResetSongCounter() {
     aikatsuCounter = 0;
     starmyuCounter = 0;
     priparaCounter = 0;
-    score020Counter = 0;
-    score2040Counter = 0;
-    score4060Counter = 0;
-    score6080Counter = 0;
-    score80100Counter = 0;
+    scorePercentageCounter = [0,0,0,0,0,0,0,0,0,0];
 	songData = [];
     answerInformation = [];
     updateSongCounter();
@@ -75,7 +68,7 @@ function AddSongCounter() {
 			<h5>
 				<b>STARMYU</b>
 			</h5>
-			<p><span id="TotalStarmyuCount">0</p> (<p id="CurrentStarmyuAnswerCount">0</span>)</p>
+			<p><span id="TotalStarmyuCount">0</p> (<span id="CurrentStarmyuAnswerCount">0</span>)</p>
 		</div>
         <div class="row">
 			<h5>
@@ -98,31 +91,172 @@ function AddSongCounter() {
 	</div>
     <div class="row">
         <h5>
-		    <b>0-20%</b>
+		    <b>0-10%</b>
 		</h5>
-        <p id="score020Counter">0</p>
+        <p id="score0010Counter">0</p>
         <h5>
-		    <b>20-40%</b>
+		    <b>10-20%</b>
 		</h5>
-        <p id="score2040Counter">0</p>
+        <p id="score1020Counter">0</p>
         <h5>
-		    <b>40-60%</b>
+		    <b>20-30%</b>
 		</h5>
-        <p id="score4060Counter">0</p>
+        <p id="score2030Counter">0</p>
         <h5>
-		    <b>60-80%</b>
+		    <b>30-40%</b>
 		</h5>
-        <p id="score6080Counter">0</p>
+        <p id="score3040Counter">0</p>
         <h5>
-		    <b>80%+</b>
+		    <b>40-50%</b>
 		</h5>
-        <p id="score80100Counter">0</p>
+        <p id="score4050Counter">0</p>
+    </div>
+    <div class="row">
+        <h5>
+		    <b>50-60%</b>
+		</h5>
+        <p id="score5060Counter">0</p>
+        <h5>
+		    <b>60-70%</b>
+		</h5>
+        <p id="score6070Counter">0</p>
+        <h5>
+		    <b>70-80%</b>
+		</h5>
+        <p id="score7080Counter">0</p>
+        <h5>
+		    <b>80-90%</b>
+		</h5>
+        <p id="score8090Counter">0</p>
+        <h5>
+		    <b>90%+</b>
+		</h5>
+        <p id="score90100Counter">0</p>
     </div>`;
 
 	var songCounterContainer = document.createElement('div');
 	songCounterContainer.id = 'songCounterContainer';
 	songCounterContainer.innerHTML = fullSongCounter;
 	document.querySelector("#quizPage").appendChild(songCounterContainer);
+}
+
+function AddPlayerInfoBox() {
+    var playerInfoBox =
+    `<div class="leftColumn">
+        <div class="row">
+			<h4>
+				<b>Correct Answer(s)</b>
+			</h4>
+		</div>
+        <div class="row">
+			<h5>
+				<b id="Correct0"></b>
+			</h5>
+			<p id="Correct0Count"></p>
+		</div>
+		<div class="row">
+			<h5>
+				<b id="Correct1"></b>
+			</h5>
+			<p id="Correct1Count"></p>
+		</div>
+		<div class="row">
+			<h5>
+				<b id="Correct2"></b>
+			</h5>
+			<p id="Correct2Count"></p>
+		</div>
+		<div class="row">
+			<h5>
+				<b id="Correct3"></b>
+			</h5>
+			<p id="Correct3Count"></p>
+		</div>
+		<div class="row">
+			<h5>
+				<b id="Correct4"></b>
+			</h5>
+			<p id="Correct4Count"></p>
+		</div>
+        <div class="row">
+			<h5>
+				<b id=""></b>
+			</h5>
+			<p id=""></p>
+		</div>
+        <div class="row">
+			<h5>
+				<b id=""></b>
+			</h5>
+			<p id=""></p>
+		</div>
+        <div class="row">
+			<h5>
+				<b id=""></b>
+			</h5>
+			<p id=""></p>
+		</div>
+	</div>
+    <div class="rightColumn">
+        <div class="row">
+			<h4>
+				<b>Wrong Answer(s)</b>
+			</h4>
+		</div>
+        <div class="row">
+			<h5>
+				<b id="Wrong0"></b>
+			</h5>
+			<p id="Wrong0Count"></p>
+		</div>
+		<div class="row">
+			<h5>
+				<b id="Wrong1"></b>
+			</h5>
+			<p id="Wrong1Count"></p>
+		</div>
+		<div class="row">
+			<h5>
+				<b id="Wrong2"></b>
+			</h5>
+			<p id="Wrong2Count"></p>
+		</div>
+		<div class="row">
+			<h5>
+				<b id="Wrong3"></b>
+			</h5>
+			<p id="Wrong3Count"></p>
+		</div>
+		<div class="row">
+			<h5>
+				<b id="Wrong4"></b>
+			</h5>
+			<p id="Wrong4Count"></p>
+		</div>
+        <div class="row">
+			<h5>
+				<b id="OtherAnswer"></b>
+			</h5>
+			<p id="OtherCount"></p>
+		</div>
+        <div class="row">
+			<h5>
+				<b id="InvalidAnswer"></b>
+			</h5>
+			<p id="InvalidAnswerCount"></p>
+		</div>
+        <div class="row">
+			<h5>
+				<b id="NoAnswer"></b>
+			</h5>
+			<p id="NoAnswerCount"></p>
+		</div>
+	</div>`;
+
+	var playerInfoContainer = document.createElement('div');
+	playerInfoContainer.id = 'playerInfoContainer';
+	playerInfoContainer.innerHTML = playerInfoBox;
+	document.querySelector("#qpAnimeCenterContainer").appendChild(playerInfoContainer);
 }
 
 //add the Song Counter
@@ -158,6 +292,14 @@ function previousSongClear() {
 	document.querySelector('#CurrentPriparaAnswerCount').innerText = '0';
     document.querySelector('#CurrentAvgScore').innerText = '0';
     document.querySelector('#correctPlayers').innerText = '';
+    displayAnswerOccurence([], "Correct");
+    displayAnswerOccurence([], "Wrong");
+    document.querySelector('#OtherAnswer').innerText = '';
+    document.querySelector('#OtherCount').innerText = '';
+    document.querySelector('#InvalidAnswer').innerText = '';
+    document.querySelector('#InvalidAnswerCount').innerText = '';
+    document.querySelector('#NoAnswer').innerText = '';
+    document.querySelector('#NoAnswerCount').innerText = '';
 }
 
 function updateSongCounter() {
@@ -165,11 +307,9 @@ function updateSongCounter() {
 	document.querySelector('#OpeningCounter').innerText = openingCounter;
 	document.querySelector('#EndingCounter').innerText = endingCounter;
 	document.querySelector('#InsertCounter').innerText = insertCounter;
-    document.querySelector('#score020Counter').innerText = score020Counter;
-    document.querySelector('#score2040Counter').innerText = score2040Counter;
-    document.querySelector('#score4060Counter').innerText = score4060Counter;
-    document.querySelector('#score6080Counter').innerText = score6080Counter;
-    document.querySelector('#score80100Counter').innerText = score80100Counter;
+    for (var i = 0; i < scorePercentageCounter.length; i++) {
+        document.querySelector('#score' + i + '0' + (i + 1) + '0Counter').innerText = scorePercentageCounter[i];
+    }
 	document.querySelector('#TotalPriparaCount').innerText = priparaCounter;
     document.querySelector('#TotalAikatsuCount').innerText = aikatsuCounter;
 	document.querySelector('#TotalStarmyuCount').innerText = starmyuCounter;
@@ -211,21 +351,13 @@ function updateUserCount() {
 	var activeCorrectPercentage = Math.round(correctCount * 100 / activePlayers);
     document.querySelector('#CurrentAvgScore').innerText = totalCorrectAverage.toFixed(2);
 	document.querySelector('#qpStandingCorrectCount').innerText = 'Active: ' + correctCount + ' / ' + activePlayers + ' ' + activeCorrectPercentage + '%';
-    if (activeCorrectPercentage < 20) {
-        score020Counter++;
+    let percentageTier = Math.floor(activeCorrectPercentage / 10);
+
+    //To prevent bugs from 100% and above
+    if (percentageTier >= 10) {
+        percentageTier = 9
     }
-    else if (activeCorrectPercentage < 40) {
-        score2040Counter++;
-    }
-    else if (activeCorrectPercentage < 60) {
-        score4060Counter++;
-    }
-    else if (activeCorrectPercentage < 80) {
-        score6080Counter++;
-    }
-    else {
-        score80100Counter++;
-    }
+    scorePercentageCounter[percentageTier]++;
 }
 
 function AddSecondarySongInfo() {
@@ -268,12 +400,56 @@ function answerTitleCounter(answer, title) {
     return answer.toLowerCase().includes(title) ? 1 : 0
 }
 
+function getNameFromAnimeList(playerAnswer) {
+    return fullAnimeList.findIndex((animeName) => animeName.toLowerCase() === playerAnswer.toLowerCase());
+}
+
+function incrementAnswerList(answerList, animeArrayIndex) {
+    //if already defined, just increment
+    //else define it with the number 1
+    if (answerList[fullAnimeList[animeArrayIndex]]) {
+        answerList[fullAnimeList[animeArrayIndex]]++;
+    }
+    else {
+        answerList[fullAnimeList[animeArrayIndex]] = 1;
+    }
+}
+
+function sortAnswerOccurence(answers) {
+    var answersArray = [];
+    for (var anime in answers) {
+        answersArray.push([anime, answers[anime]]);
+    }
+    answersArray.sort(function(a, b) {
+        return b[1] - a[1];
+    });
+    return answersArray;
+}
+
+function displayAnswerOccurence(answerArray, keyword) {
+    for (var j = 0; j < 5; j++) {
+        if (answerArray[j]) {
+            document.getElementById(keyword + j).innerText = answerArray[j][0];
+            document.getElementById(keyword + j + "Count").innerText = answerArray[j][1];
+        }
+        else {
+            document.getElementById(keyword + j).innerText = "";
+            document.getElementById(keyword + j + "Count").innerText = "";
+        }
+    }
+}
+
 function GetAnswerInformation() {
-    var players = document.querySelectorAll('.qpAvatarCenterContainer');
-    var correctPlayers = [];
-    var currentSongAikatsuCount = 0;
-    var currentSongStarmyuCount = 0;
-    var currentSongPriparaCount = 0;
+    let players = document.querySelectorAll('.qpAvatarCenterContainer');
+    let correctPlayers = [];
+    let currentSongAikatsuCount = 0;
+    let currentSongStarmyuCount = 0;
+    let currentSongPriparaCount = 0;
+    let currentSongNoAnswerCount = 0;
+    let currentSongOtherCount = 0;
+    let currentSongInvalidCount = 0;
+    let rightAnswers = {};
+    let wrongAnswers = {};
 
     //check if the player array needs to be resetted for a new game
     //playerName check is a pretty safe check if you're moving inbetween games, but definitely not the most robust
@@ -285,11 +461,6 @@ function GetAnswerInformation() {
         let onPlayerList = !players[i].querySelector('.qpAvatarStatus').classList.contains('hide');
         let playerAnswer = players[i].querySelector('.qpAvatarAnswerText').innerText;
         let rightAnswer = players[i].querySelector('.qpAvatarAnswerContainer').classList.contains('rightAnswer');
-
-        //Silly extra code to do with player answers
-        currentSongAikatsuCount += answerTitleCounter(playerAnswer, "aikatsu");
-        currentSongStarmyuCount += answerTitleCounter(playerAnswer, "starmyu");
-        currentSongPriparaCount += answerTitleCounter(playerAnswer, "pripara") + answerTitleCounter(playerAnswer, "prism paradise")
 
         //if starting a new game, the player array needs to be restarted to accept clean information
         if (resetPlayerArray) {
@@ -310,10 +481,53 @@ function GetAnswerInformation() {
             // answerInformation[i].rightAnswer.push(rightAnswer);
             playerScores[i] = playerScore;
         }
+
+        if(playerAnswer === "..."){
+            currentSongNoAnswerCount++;
+        }
+        else {
+            var animeIndex = getNameFromAnimeList(playerAnswer);
+            //if name in songlist, file the name of the anime and add to its count
+            if (animeIndex > -1){
+                if (rightAnswer) {
+                    incrementAnswerList(rightAnswers, animeIndex);
+                }
+                else {
+                    incrementAnswerList(wrongAnswers, animeIndex);
+                }
+            }
+            else {
+                currentSongInvalidCount++;
+            }
+        }
+
+        //Silly extra code to do with player answers
+        currentSongAikatsuCount += answerTitleCounter(playerAnswer, "aikatsu");
+        currentSongStarmyuCount += answerTitleCounter(playerAnswer, "starmyu");
+        currentSongPriparaCount += answerTitleCounter(playerAnswer, "pripara") + answerTitleCounter(playerAnswer, "prism paradise");
+
         if (rightAnswer) {
             correctPlayers.push(players[i].querySelector('.qpAvatarNameContainer span').innerText);
         }
     }
+
+    //Show Answer Breakdown
+    var rightAnswersArray = sortAnswerOccurence(rightAnswers);
+    var wrongAnswersArray = sortAnswerOccurence(wrongAnswers);
+    displayAnswerOccurence(rightAnswersArray, "Correct");
+    displayAnswerOccurence(wrongAnswersArray, "Wrong");
+    if(wrongAnswersArray.length > 5) {
+        for (var k = 5; k < wrongAnswersArray.length; k++) {
+            currentSongOtherCount = currentSongOtherCount + wrongAnswersArray[k][1];
+        }
+    }
+
+    document.querySelector('#OtherAnswer').innerText = 'Other';
+    document.querySelector('#OtherCount').innerText = currentSongOtherCount;
+    document.querySelector('#InvalidAnswer').innerText = 'Invalid Answers';
+    document.querySelector('#InvalidAnswerCount').innerText = currentSongInvalidCount;
+    document.querySelector('#NoAnswer').innerText = 'No Answer';
+    document.querySelector('#NoAnswerCount').innerText = currentSongNoAnswerCount;
 
     //Update the cumulative totals for fun numbers
     aikatsuCounter += currentSongAikatsuCount;
@@ -325,9 +539,9 @@ function GetAnswerInformation() {
 
     //Print the users who got the song right
     if (correctPlayers.length > 0 && songData.length) {
-        songData[songData.length-1].correctPlayers = correctPlayers;
-        document.querySelector("#correctPlayers").innerText = songData[songData.length-1].correctPlayers.join(' ');
+        document.querySelector("#correctPlayers").innerText = correctPlayers.join(' ');
         if (correctPlayers.length <= 5) {
+            songData[songData.length-1].correctPlayers = correctPlayers;
             console.log(correctPlayers);
         }
     }
@@ -353,7 +567,7 @@ function PrintRanking() {
     for (var i = 0; i < answerInformation.length; i++) {
         ranking += (i + 1) + ': ' + answerInformation[i].playerName + ' (' + answerInformation[i].playerScore + ')\n'
     }
-    console.log(ranking)
+    console.log(ranking);
 }
 
 function EndRoundStuff() {
@@ -362,11 +576,9 @@ function EndRoundStuff() {
         console.log("STARMYU Guess Count:" + starmyuCounter);
         console.log("Pripara Guess Count:" + priparaCounter);
         console.log("Average Score:" + GetAverageScore());
-        console.log("0-20%:" + score020Counter);
-        console.log("20-40%:" + score2040Counter);
-        console.log("40-60%:" + score4060Counter);
-        console.log("60-80%:" + score6080Counter);
-        console.log("80-100%:" + score80100Counter);
+        for (var i = 0; i < scorePercentageCounter.length; i++) {
+            console.log(i + '0-' + (i + 1) + '0%:' + scorePercentageCounter[i]);
+        }
         PrintRanking();
         PrintSongInformation();
     }
@@ -522,12 +734,20 @@ function ObserveAnswerShowing() {
     countdownObserver.observe(countdown, countdownConfig);
 }
 
+function getSongList() {
+    let retriveListListener = new Listener("get all song names", function (payload) {
+        fullAnimeList = payload.names;
+    }).bindListener();
+}
+
 function StartAmqScript() {
     //check if script is already running to avoid running it twice
     if (!document.querySelector('#SongCounter')) {
         console.log("HAI");
+        getSongList();
         AddSongCounter();
         AddCorrectPlayersBox();
+        AddPlayerInfoBox();
         ObserveAnswerShowing();
         SetupMirrorTimer();
         AddSecondarySongInfo();
@@ -538,7 +758,11 @@ function StartAmqScript() {
         }).bindListener();
 
         new Listener("answer results", function (result) {
-            secondSongCounterCallback(result)
+            secondSongCounterCallback(result);
+        }).bindListener();
+
+        new Listener("play next song", function (data) {
+            previousSongClear();
         }).bindListener();
     }
 }
