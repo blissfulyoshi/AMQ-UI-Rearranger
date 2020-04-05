@@ -15,3 +15,29 @@ function convertSongTypeToText(type, typeNumber) {
 		case 3: return "Insert Song";
 	}
 }
+
+// Get the average score of every player in the game
+function GetAverageScore() {
+    var players = document.querySelectorAll('.qpAvatarCenterContainer');
+    var totalScore = 0;
+    if (players && answerInformation[0]) {
+        for (var j = 0; j < players.length; j++) {
+            totalScore += answerInformation[j].playerScore;
+        }
+
+         //use round * 10  / 10 to get 1 decimal point
+        return Math.round(totalScore/players.length * 10) / 10
+    }
+
+    return 0;
+}
+
+// Get the person at the place inputted
+function GetScoreOfPlace(place) {
+    if (playerScores.length > place) {
+        playerScores.sort(function(a, b){return b-a});
+        return playerScores[place - 1];
+    }
+
+    return 'n/a';
+}
