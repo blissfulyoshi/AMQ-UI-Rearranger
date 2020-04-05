@@ -104,9 +104,27 @@ function AddSongCounter() {
 	document.querySelector("#quizPage").appendChild(songCounterContainer);
 }
 
+// After the answering phase is over, clear the values irrelevant to the next song
 function clearSongCounterAfterPrevSong() {
 	document.querySelector('#CurrentStarmyuAnswerCount').innerText = '0';
 	document.querySelector('#CurrentAikatsuAnswerCount').innerText = '0';
 	document.querySelector('#CurrentPriparaAnswerCount').innerText = '0';
     document.querySelector('#CurrentAvgScore').innerText = '0';
+}
+
+// Update the text values of the fields in the Song Counter box with the information from the current song
+// Maybe upgrade it to be more flexible in the future
+// GetAverageScore() is a utility function
+function updateSongCounter(opCount, edCount, isCount, ppCount, akCount, stCount, percentageCountArray) {
+	document.querySelector('#SongCounter').innerText = document.querySelector('#qpCurrentSongCount').innerText;
+	document.querySelector('#OpeningCounter').innerText = opCount;
+	document.querySelector('#EndingCounter').innerText = edCount;
+	document.querySelector('#InsertCounter').innerText = isCount;
+    for (var i = 0; i < percentageCountArray.length; i++) {
+        document.querySelector('#score' + i + '0' + (i + 1) + '0Counter').innerText = percentageCountArray[i];
+    }
+	document.querySelector('#TotalPriparaCount').innerText = ppCount;
+    document.querySelector('#TotalAikatsuCount').innerText = akCount;
+	document.querySelector('#TotalStarmyuCount').innerText = stCount;
+    document.querySelector('#AvgScore').innerText = GetAverageScore();
 }
