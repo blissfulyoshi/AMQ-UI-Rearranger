@@ -41,21 +41,3 @@ function copyToSecondarySongInfo(result) {
     document.querySelector('#SecondaryRomaji').innerText = result.songInfo.animeNames.romaji;
     document.querySelector('#SecondaryStartTime').innerText = sec2time(quizVideoController.moePlayers[quizVideoController.currentMoePlayerId].startPoint) + ' / ' + sec2time(quizVideoController.moePlayers[quizVideoController.currentMoePlayerId].$player.find("video")[0].duration);
 }
-
-function sec2time(timeInSeconds) {
-    var pad = function(num, size) { return ('000' + num).slice(size * -1); },
-    minutes = Math.floor(timeInSeconds / 60) % 60,
-    seconds = Math.floor(timeInSeconds - minutes * 60);
-
-    return minutes + ':' + pad(seconds, 2);
-}
-
-// Copied from AMQ's js
-// Translates type to the correct output
-function convertSongTypeToText(type, typeNumber) {
-    switch (type) {
-		case 1: return "Opening " + typeNumber;
-		case 2: return "Ending " + typeNumber;
-		case 3: return "Insert Song";
-	}
-}
