@@ -1,0 +1,17 @@
+function sec2time(timeInSeconds) {
+    var pad = function(num, size) { return ('000' + num).slice(size * -1); },
+    minutes = Math.floor(timeInSeconds / 60) % 60,
+    seconds = Math.floor(timeInSeconds - minutes * 60);
+
+    return minutes + ':' + pad(seconds, 2);
+}
+
+// Copied from AMQ's js
+// Translates type to the correct output
+function convertSongTypeToText(type, typeNumber) {
+    switch (type) {
+		case 1: return "Opening " + typeNumber;
+		case 2: return "Ending " + typeNumber;
+		case 3: return "Insert Song";
+	}
+}
