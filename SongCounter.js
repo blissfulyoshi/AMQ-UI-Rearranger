@@ -154,3 +154,17 @@ function updateSongCounterLabels() {
         document.querySelector('#InsertCounterLabel').innerText = "Inserts (" + insertPercentage + '%)';
     }, 500);
 }
+
+//check for song type
+function checkForSongType(result) {
+    var songType = convertSongTypeToText(result.songInfo.type, result.songInfo.typeNumber)
+	if (songType.includes('Opening')) {
+		openingCounter++;
+	}
+	if (songType.includes('Ending')) {
+		endingCounter++;
+	}
+	if (songType.includes('Insert')) {
+		insertCounter++;
+	}
+}
