@@ -128,3 +128,29 @@ function updateSongCounter(opCount, edCount, isCount, ppCount, akCount, stCount,
 	document.querySelector('#TotalStarmyuCount').innerText = stCount;
     document.querySelector('#AvgScore').innerText = GetAverageScore();
 }
+
+function updateSongCounterLabels() {
+    setTimeout(function() {
+        // There are effectively 2 song counts: the one set in the options, and the actual song count on the ingame counter
+        // use the actual song count for display but use the options value to set the predicted percentages
+        // Bug: however the actualSongCount remains a ? until the game fully loads, so it needs another trigger
+        let songCount = parseInt(document.querySelector('#mhNumberOfSongs').value);
+        let actualSongCount = document.querySelector('#qpTotalSongCount').innerText;
+        let openingCount = parseInt(document.querySelector('#mhOpenings').value);
+        let endingCount = parseInt(document.querySelector('#mhEndings').value);
+        //let insertCount = parseInt(document.querySelector('#mhInserts').value);
+        let randomCount = parseInt(document.querySelector('#mhRandomType').value);
+
+        // Get the estimate distribution for op/ed/ins as a percentage
+        // Assume random songs are evenly distributed among all types
+        // Bug: Does not take into account that op/ed/ins might be disabled
+        let openingPercentage = Math.round((openingCount + (randomCount / 3))/ songCount * 100);
+        let endingPercentage = Math.round((endingCount + (randomCount / 3))/ songCount * 100);
+        // To make sure insert percentage makes the total add up to 100%, just subtract the other 2 percentages from 100
+        let insertPercentage = 100 - openingPercentage - endingPercentage;
+        document.querySelector('#SongCounterLabel').innerText = "Songs (" + songCount + ')';
+        document.querySelector('#OpeningCounterLabel').innerText = "Openings (" + openingPercentage + '%)';
+        document.querySelector('#EndingCounterLabel').innerText = "Endings (" + endingPercentage + '%)';
+        document.querySelector('#InsertCounterLabel').innerText = "Inserts (" + insertPercentage + '%)';
+    }, 500);
+}
