@@ -41,3 +41,10 @@ function GetScoreOfPlace(place) {
 
     return 'n/a';
 }
+
+// Tell if the round is over
+function IfRoundIsOver() {
+    let currentSongCount = parseInt(document.querySelector('#qpCurrentSongCount').innerText);
+    let totalSongCount = parseInt(document.querySelector('#qpTotalSongCount').innerText);
+    return currentSongCount === totalSongCount;
+}
