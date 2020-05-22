@@ -1,7 +1,8 @@
 /* For 720 setup */
 .col-xs-9 {width: 66.6666667%;}
 
-#xpOuterContainer {display:none;}
+/* Level 
+#xpOuterContainer {display:none;}*/
 
 /* Buffer between Video and Characters */
 #qpAnimeContainer {margin-bottom: 80px;}
