@@ -1,15 +1,19 @@
 // ==UserScript==
 // @name         AMQ-UI-Rearranger
 // @namespace    https://github.com/blissfulyoshi
-// @version      0.3.2
+// @version      0.3.3
 // @description  Create a Song Counter in AMQ
 // @match        https://animemusicquiz.com/
-// @grant        none
+// @grant        GM_xmlhttpRequest
+// @connect      pastebin.com
 // @require      https://raw.githubusercontent.com/blissfulyoshi/AMQ-UI-Rearranger/master/AmqUtilityFunctions.js
 // @require      https://raw.githubusercontent.com/blissfulyoshi/AMQ-UI-Rearranger/master/PlayerInfoBox.js
 // @require      https://raw.githubusercontent.com/blissfulyoshi/AMQ-UI-Rearranger/master/SongCounter.js
 // @require      https://raw.githubusercontent.com/blissfulyoshi/AMQ-UI-Rearranger/master/SecondarySongInfo.js
 // ==/UserScript==
+
+var devKey = "pastebin_dev_key";
+var userKey = "pastebin_user_key";
 
 var openingCounter = 0;
 var endingCounter = 0;
@@ -327,6 +331,37 @@ function CopySongData() {
     document.execCommand('copy');
 }
 
+// Upload the song data and copy to clipboard
+function UploadSongData() {
+    //sketchy way to calculate ranked dates
+    var offset = -6;
+    var shouldBeSafeTimeForRankedDate = new Date( new Date().getTime() + offset * 3600 * 1000);
+    var rankedLocation = shouldBeSafeTimeForRankedDate.getUTCHours() < 14 ? "Central" : "Western"
+    var formattedRankedDate = shouldBeSafeTimeForRankedDate.toISOString().split('T')[0];
+    var fileName = rankedLocation + " Ranked song List: " + formattedRankedDate;
+    GM_xmlhttpRequest({
+		method: "POST",
+		url: "https://pastebin.com/api/api_post.php",
+		headers: {
+			"Content-Type": "application/x-www-form-urlencoded"
+		},
+		data: "api_dev_key=" + devKey +
+			"&api_user_key=" + userKey +
+			"&api_option=paste" +
+			"&api_paste_private=0" +
+			"&api_paste_name=" + fileName +
+			"&api_paste_expire_date=N" +
+			"&api_paste_format=json" +
+			"&api_paste_code=" + JSON.stringify(songData, null, 2),
+		onload:     function (response) {
+            document.querySelector('#songDataHolder').value = response.response;
+            document.querySelector('#songDataHolder').select();
+            document.execCommand('copy');
+            console.log(response.response);
+		}
+	});
+}
+
 function AddSongDataHolder() {
     var songDataHolder = document.createElement('textarea');
 	songDataHolder.id = 'songDataHolder';
@@ -335,9 +370,17 @@ function AddSongDataHolder() {
     songDataCopyButton.id = 'copySongData'
     songDataCopyButton.innerHTML = 'Copy';
     document.querySelector("#gameChatPage").appendChild(songDataCopyButton);
+    var songDataUploadButton = document.createElement('button');
+    songDataUploadButton.id = 'uploadSongData'
+    songDataUploadButton.innerHTML = 'Upload';
+    document.querySelector("#gameChatPage").appendChild(songDataUploadButton);
 
     document.querySelector("#copySongData").addEventListener('click', function() {
         CopySongData();
+    });
+
+    document.querySelector("#uploadSongData").addEventListener('click', function() {
+        UploadSongData();
     });
 }
 
@@ -408,10 +451,16 @@ function StartAmqScript() {
         new Listener("play next song", function (data) {
             previousSongClear();
         }).bindListener();
+
+        //pastebin = window.open('https://pastebin.com', '_blank');
     }
 }
 
-document.querySelector("#mpPlayButton").addEventListener('click', function() {
+document.querySelector("#mpPlayMultiplayer").addEventListener('click', function() {
+    StartAmqScript();
+});
+
+document.querySelector("#mpPlaySolo").addEventListener('click', function() {
     StartAmqScript();
 });
 
