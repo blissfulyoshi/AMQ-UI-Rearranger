@@ -46,7 +46,7 @@ function AddSongCounter() {
 			</h5>
             <p><span id="TotalPriparaCount">0</span> (<span id="CurrentPriparaAnswerCount">0</span>)</p>
 		</div>
-		<div class="row">
+		<div class="row" id="AvgScoreLabel">
 			<h5>
 				<b>Avg Score</b>
 			</h5>
@@ -109,26 +109,42 @@ function clearSongCounterAfterPrevSong() {
 	document.querySelector('#CurrentStarmyuAnswerCount').innerText = '0';
 	document.querySelector('#CurrentAikatsuAnswerCount').innerText = '0';
 	document.querySelector('#CurrentPriparaAnswerCount').innerText = '0';
-    document.querySelector('#CurrentAvgScore').innerText = '0';
+    	document.querySelector('#CurrentAvgScore').innerText = '0';
 }
 
 // Update the text values of the fields in the Song Counter box with the information from the current song
 // Maybe upgrade it to be more flexible in the future
+// 2020-08-02 change, update labels with current op/ed/ins percentages + update Avg with expected Value
 // GetAverageScore() is a utility function
 function updateSongCounter(opCount, edCount, isCount, ppCount, akCount, stCount, percentageCountArray) {
-	document.querySelector('#SongCounter').innerText = document.querySelector('#qpCurrentSongCount').innerText;
+	// Get the various bits of information to populate the box
+	var songCount = document.querySelector('#qpCurrentSongCount').innerText;
+	let openingPercentage = Math.round(opCount / songCount * 100);
+        let endingPercentage = Math.round(edCount / songCount * 100);
+        let insertPercentage = Math.round(isCount / songCount * 100);
+	// Expected value is just for ranked, so this will just be hardcoded for now
+	let expectedValue = 20/75 * songCount
+	
+	//Populate the box
+	document.querySelector('#SongCounter').innerText = songCount;
 	document.querySelector('#OpeningCounter').innerText = opCount;
+	document.querySelector('#OpeningCounterLabel').innerText = "Openings (" + openingPercentage + '%)';
 	document.querySelector('#EndingCounter').innerText = edCount;
+	document.querySelector('#EndingCounterLabel').innerText = "Endings (" + endingPercentage + '%)';
 	document.querySelector('#InsertCounter').innerText = isCount;
-    for (var i = 0; i < percentageCountArray.length; i++) {
-        document.querySelector('#score' + i + '0' + (i + 1) + '0Counter').innerText = percentageCountArray[i];
-    }
+	document.querySelector('#InsertCounterLabel').innerText = "Inserts (" + insertPercentage + '%)';
+    	for (var i = 0; i < percentageCountArray.length; i++) {
+        	document.querySelector('#score' + i + '0' + (i + 1) + '0Counter').innerText = percentageCountArray[i];
+    	}
 	document.querySelector('#TotalPriparaCount').innerText = ppCount;
-    document.querySelector('#TotalAikatsuCount').innerText = akCount;
+    	document.querySelector('#TotalAikatsuCount').innerText = akCount;
 	document.querySelector('#TotalStarmyuCount').innerText = stCount;
-    document.querySelector('#AvgScore').innerText = GetAverageScore();
+    	document.querySelector('#AvgScore').innerText = GetAverageScore();
+	document.querySelector('#AvgScoreLabel').innerText = "Avg Score (" + expectedValue.toFixed(1) + ')';
 }
 
+// Updates the labels in the song counter box to show the expected values of ops/eds/ins
+// No longer in use since this information wasn't very engaging to the user base
 function updateSongCounterLabels() {
     setTimeout(function() {
         // There are effectively 2 song counts: the one set in the options, and the actual song count on the ingame counter
