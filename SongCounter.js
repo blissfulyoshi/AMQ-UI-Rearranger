@@ -50,7 +50,7 @@ function AddSongCounter() {
 			<h5>
 				<b id="AvgScoreLabel">Avg Score</b>
 			</h5>
-            		<p><span id="AvgScore">0</span> (<span id="CurrentAvgScore">0</span>)</p>
+            		<p><span id="AvgScore">0</span> (<span id="CurrentAvgScore">0</span>) | E:<span id="ExpectedAvgScore">0</span></p>
 		</div>
 	</div>
     	<div class="row">
@@ -139,7 +139,8 @@ function updateSongCounter(opCount, edCount, isCount, ppCount, akCount, stCount,
 	document.querySelector('#TotalPriparaCount').innerText = ppCount;
     	document.querySelector('#TotalAikatsuCount').innerText = akCount;
 	document.querySelector('#TotalStarmyuCount').innerText = stCount;
-    	document.querySelector('#AvgScore').innerText = GetAverageScore() + ' | E:' + expectedValue.toFixed(1);
+    	document.querySelector('#AvgScore').innerText = GetAverageScore();
+	document.querySelector('#ExpectedAvgScore').innerText = expectedValue.toFixed(1)
 }
 
 // Updates the labels in the song counter box to show the expected values of ops/eds/ins
