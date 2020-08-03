@@ -139,8 +139,7 @@ function updateSongCounter(opCount, edCount, isCount, ppCount, akCount, stCount,
 	document.querySelector('#TotalPriparaCount').innerText = ppCount;
     	document.querySelector('#TotalAikatsuCount').innerText = akCount;
 	document.querySelector('#TotalStarmyuCount').innerText = stCount;
-    	document.querySelector('#AvgScore').innerText = GetAverageScore();
-	document.querySelector('#AvgScoreLabel').innerText = "Avg Score (" + expectedValue.toFixed(1) + ')';
+    	document.querySelector('#AvgScore').innerText = GetAverageScore() + ' | E:' + expectedValue.toFixed(1);
 }
 
 // Updates the labels in the song counter box to show the expected values of ops/eds/ins
