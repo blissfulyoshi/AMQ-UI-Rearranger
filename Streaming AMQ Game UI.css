@@ -25,6 +25,11 @@
 #qpScoreBoardEntryContainer .qpScoreBoardEntry {line-height: 33px;}
 #qpScoreBoardEntryContainer .qpsPlayerScore, #qpScoreBoardEntryContainer .qpsPlayerName {font-size:21px}
 
+/* Get rid of the new elements created by the script*/
+#qpStandingContainer > div:nth-child(1) > div:nth-child(n+2):nth-child(-n+6) {display: none;}
+#rigTrackingHeader {display:none}
+.qpStandingItem div:nth-child(n+3){display:none}
+
 /* Correct Players */
 #correctPlayersContainer {background-color:#424242; box-shadow: 0 0 10px 2px rgb(0, 0, 0); max-width: 215px; padding: 4px; margin-top: 4px; text-align: left; height: 90px; overflow: hidden;}
 #correctPlayersContainer h5 {margin: 0;}
@@ -100,7 +105,7 @@
 #qpAnimeCenterContainer {padding-left: 0;}
 #songCounterContainer {background-color:#424242; box-shadow: 0 0 10px 2px rgb(0, 0, 0); width: 410px; padding: 4px; position: absolute; left: 870px; top: 0;}
 #songCounterContainer .leftColumn {width: 165px; display: inline-block;}
-#songCounterContainer .rightColumn {width: 165px; display: inline-block;}
+#songCounterContainer .rightColumn {width: 215px; display: inline-block;}
 #songCounterContainer .leftColumn h5 {width: 130px;}
 #songCounterContainer .rightColumn h5 {width: 85px;}
 #songCounterContainer .row{margin: 1px 0}
@@ -114,6 +119,8 @@
 #playerInfoContainer .row{margin: 1px 0}
 #playerInfoContainer h5 {display:inline-block; width: 230px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; text-align: right; margin: 0; vertical-align: middle;}
 #playerInfoContainer p {display:inline-block; width: 30px; text-align: left; margin: 0; font-size: 16px; vertical-align: middle;}
+
+#rigExplanationContainer {display:none;}
 
 #copySongData {display: block; position: absolute; left: 1400px; top: 70px; color: black;}
 #uploadSongData {display: block; position: absolute; left: 1480px; top: 70px; color: black;}
