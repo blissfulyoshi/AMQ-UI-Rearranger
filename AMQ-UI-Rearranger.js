@@ -1,11 +1,13 @@
 // ==UserScript==
 // @name         AMQ-UI-Rearranger
 // @namespace    https://github.com/blissfulyoshi
-// @version      0.3.3
+// @version      0.4.0
 // @description  Create a Song Counter in AMQ
 // @match        https://animemusicquiz.com/
 // @grant        GM_xmlhttpRequest
 // @connect      pastebin.com
+// @connect      script.google.com
+// @connect      script.googleusercontent.com
 // @require      https://raw.githubusercontent.com/blissfulyoshi/AMQ-UI-Rearranger/master/AmqUtilityFunctions.js
 // @require      https://raw.githubusercontent.com/blissfulyoshi/AMQ-UI-Rearranger/master/PlayerInfoBox.js
 // @require      https://raw.githubusercontent.com/blissfulyoshi/AMQ-UI-Rearranger/master/SongCounter.js
@@ -14,6 +16,7 @@
 
 var devKey = "pastebin_dev_key";
 var userKey = "pastebin_user_key";
+var gSheetUrl = "google_sheets_script_url";
 
 var openingCounter = 0;
 var endingCounter = 0;
@@ -25,6 +28,7 @@ var scorePercentageCounter = [0,0,0,0,0,0,0,0,0,0];
 var songData = [];
 var answerInformation = [];
 var fullAnimeList = [];
+var pastebinUrl = '';
 
 //separate array to track player scores only so I don't have to sort an array
 var playerScores = [];
@@ -131,6 +135,162 @@ function updatePlayerAnswerArray(playerIndex, playerList, playerScore, onPlayerL
         answerInformation[playerIndex].onPlayerList.push(onPlayerList);
         answerInformation[playerIndex].playerAnswer.push(playerAnswer);
         answerInformation[playerIndex].rightAnswer.push(rightAnswer);
+    }
+}
+
+function SongTypeRig() {
+    return {
+        rig: 0,
+        correctRig:0,
+        correctNonRig: 0,
+        wrongNonRig: 0
+    }
+}
+
+function calculatePlayerRigDetails(){
+    var roomName = document.getElementById('mhRoomNameInput').value
+    if (roomName !== 'Ranked'){
+		for (var j = 0; j < answerInformation.length; j++) {
+			var playerName = answerInformation[j].playerName;
+			var openings = SongTypeRig();
+			var endings = SongTypeRig();
+			var inserts = SongTypeRig();
+			for (var i = 0; i < songData.length; i++) {
+				var rig = answerInformation[j].onPlayerList[i]
+				var correct = answerInformation[j].rightAnswer[i]
+
+				if (songData[i].type.includes("Opening")) {
+					updateRigData(openings, rig, correct)
+				}
+				else if (songData[i].type.includes("Ending")) {
+					updateRigData(endings, rig, correct)
+				}
+				else if (songData[i].type.includes("Insert")) {
+					updateRigData(inserts, rig, correct)
+				}
+			}
+			updateRigTable(playerName, openings, endings, inserts);
+		}
+	}
+}
+
+function createRigTable(){
+    var roomName = document.getElementById('mhRoomNameInput').value;
+    if (roomName === 'Ranked'){
+        return;
+    }
+
+	if (!document.getElementById('rigTrackingHeader')) {
+		var standingsContainer = document.getElementById('qpStandingContainer').children[0];
+
+		var rigHeaders = ['Total', 'Openings', 'Endings', 'Inserts'];
+		for (var i = 0; i < 4; i++) {
+			var rigHeader = document.createElement('div');
+			rigHeader.innerText = rigHeaders[i];
+			standingsContainer.append(rigHeader);
+		}
+
+		var headerRow = document.createElement('div');
+		var fillerDiv = document.createElement('div');
+		headerRow.append(fillerDiv);
+		headerRow.id = "rigTrackingHeader"
+
+		var rigTitles = ['R', 'RC', 'NC', 'NW'];
+		for (i = 0; i < 4; i++) {
+			for (var j = 0; j < 4; j++) {
+				var rigTitle = document.createElement('div');
+				rigTitle.innerText = rigTitles[j];
+				headerRow.append(rigTitle);
+			}
+		}
+
+        standingsContainer.append(headerRow);
+	}
+
+	if (!document.getElementById('rigExplanationContainer')) {
+		var centerContainer = document.getElementById('qpAnimeCenterContainer');
+        var rigExplanation = `
+			<div class="row">
+				<h5>R</h5>
+				<p>Rig</p>
+			</div>
+			<div class="row">
+				<h5>RC</h5>
+				<p>Rig Correct</p>
+			</div>
+			<div class="row">
+				<h5>NC</h5>
+				<p>Nonrig Correct</p>
+			</div>
+			<div class="row">
+				<h5>NW</h5>
+				<p>Nonrig Wrong</p>
+			</div>`;
+
+        var rigExplanationContainer = document.createElement('div');
+	    rigExplanationContainer.id = 'rigExplanationContainer';
+	    rigExplanationContainer.innerHTML = rigExplanation;
+        centerContainer.append(rigExplanationContainer);
+	}
+
+	var players = document.querySelectorAll('.qpStandingItem');
+	for (j = 0; j < players.length; j++) {
+		//Add the 4*4 fields needed for the rig table
+		for (i = 0; i < 16; i++) {
+			var rig = document.createElement('div');
+			rig.innerText = '0';
+			players[j].append(rig);
+		}
+    }
+}
+
+function updateRigQuadrant(player, songTypeRig, typeMultiplier){
+    //Add 2 to account for the 2 nodes that start of the row
+    player.children[typeMultiplier * 4 + 2].innerText = songTypeRig.rig;
+    player.children[typeMultiplier * 4 + 3].innerText = songTypeRig.correctRig;
+    player.children[typeMultiplier * 4 + 4].innerText = songTypeRig.correctNonRig;
+    player.children[typeMultiplier * 4 + 5].innerText = songTypeRig.wrongNonRig;
+}
+
+function updateRigTable(playerName, openings, endings, inserts) {
+    //check to see if the rig table exists
+    if (document.querySelector('.qpStandingItem').children.length < 3) {
+        createRigTable()
+    }
+
+    var playerList = document.querySelectorAll('.qpsPlayerName');
+    var player;
+    for (var i = 0; i < playerList.length; i++) {
+        if (playerList[i].innerText == playerName) {
+            player = playerList[i].parentElement.parentElement.parentElement;
+            break;
+        }
+    }
+    var total = SongTypeRig();
+    total.rig = openings.rig + endings.rig + inserts.rig;
+    total.correctRig = openings.correctRig + endings.correctRig + inserts.correctRig;
+    total.correctNonRig = openings.correctNonRig + endings.correctNonRig + inserts.correctNonRig;
+    total.wrongNonRig = openings.wrongNonRig + endings.wrongNonRig + inserts.wrongNonRig;
+    updateRigQuadrant(player, total, 0);
+    updateRigQuadrant(player, openings, 1);
+    updateRigQuadrant(player, endings, 2);
+    updateRigQuadrant(player, inserts, 3);
+}
+
+function updateRigData(rigData, rig, correct) {
+    if (rig) {
+        rigData.rig++;
+        if (correct) {
+            rigData.correctRig ++;
+        }
+    }
+    else{
+        if (correct) {
+            rigData.correctNonRig ++;
+        }
+        else {
+            rigData.wrongNonRig ++;
+        }
     }
 }
 
@@ -249,6 +409,7 @@ function GetAnswerInformation() {
     updateAnswerList();
     updateSongCounters();
     updateCorrectPlayers();
+    calculatePlayerRigDetails();
 }
 
 function GetRig(playerInformation) {
@@ -270,6 +431,12 @@ function PrintRanking() {
 
 function EndRoundStuff() {
     if(IfRoundIsOver()) {
+        //If ranked, automatically upload song data
+        var roomName = document.getElementById('mhRoomNameInput').value
+        if (roomName === 'Ranked'){
+            UploadSongData();
+        }
+
         console.log("Aikatsu! Guess Count:" + aikatsuCounter);
         console.log("STARMYU Guess Count:" + starmyuCounter);
         console.log("Pripara Guess Count:" + priparaCounter);
@@ -338,7 +505,7 @@ function UploadSongData() {
     var shouldBeSafeTimeForRankedDate = new Date( new Date().getTime() + offset * 3600 * 1000);
     var rankedLocation = shouldBeSafeTimeForRankedDate.getUTCHours() < 14 ? "Central" : "Western"
     var formattedRankedDate = shouldBeSafeTimeForRankedDate.toISOString().split('T')[0];
-    var fileName = rankedLocation + " Ranked song List: " + formattedRankedDate;
+    var fileName = rankedLocation + " Ranked Song List: " + encodeURIComponent(formattedRankedDate);
     GM_xmlhttpRequest({
 		method: "POST",
 		url: "https://pastebin.com/api/api_post.php",
@@ -352,14 +519,37 @@ function UploadSongData() {
 			"&api_paste_name=" + fileName +
 			"&api_paste_expire_date=N" +
 			"&api_paste_format=json" +
-			"&api_paste_code=" + JSON.stringify(songData, null, 2),
+			"&api_paste_code=" + encodeURIComponent(JSON.stringify(songData, null, 2)),
 		onload:     function (response) {
-            document.querySelector('#songDataHolder').value = response.response;
-            document.querySelector('#songDataHolder').select();
-            document.execCommand('copy');
-            console.log(response.response);
-		}
-	});
+            pastebinUrl = response.response;
+
+            //Save the pastebin to gdocs
+            //Use jquery's ajax because GM_xmlhttpRequest only handles text and jquery is available
+            //partially copied from https://github.com/YokipiPublic/AMQ/blob/master/FTFRemoteUpdate.user.js
+            var data = {jsonUrl: response.response};
+            var url = gSheetUrl;
+            var submitRequest = $.ajax({
+                url: url,
+                type: "post",
+                data: data
+            });
+
+            // Callback handler that will be called on success
+            submitRequest.done(function (response, textStatus, jqXHR) {
+                if (response.result == "ERROR") {
+                    console.log("Rejected by GAS.");
+                    console.error(response);
+                } else {
+                    console.log("Submission attempt successful!");
+                }
+            });
+
+            // Callback handler that will be called on failure
+            submitRequest.fail(function (jqXHR, textStatus, errorThrown) {
+                console.error("Submission attempt failed: " + textStatus, errorThrown);
+            });
+        }
+    });
 }
 
 function AddSongDataHolder() {
@@ -371,16 +561,19 @@ function AddSongDataHolder() {
     songDataCopyButton.innerHTML = 'Copy';
     document.querySelector("#gameChatPage").appendChild(songDataCopyButton);
     var songDataUploadButton = document.createElement('button');
-    songDataUploadButton.id = 'uploadSongData'
-    songDataUploadButton.innerHTML = 'Upload';
+    songDataUploadButton.id = 'getPastebinUrl'
+    songDataUploadButton.innerHTML = 'Pastebin Url';
     document.querySelector("#gameChatPage").appendChild(songDataUploadButton);
 
     document.querySelector("#copySongData").addEventListener('click', function() {
         CopySongData();
     });
 
-    document.querySelector("#uploadSongData").addEventListener('click', function() {
-        UploadSongData();
+    document.querySelector("#getPastebinUrl").addEventListener('click', function() {
+        //save the pastebin to clipboard
+        document.querySelector('#songDataHolder').value = pastebinUrl;
+        document.querySelector('#songDataHolder').select();
+        document.execCommand('copy');
     });
 }
 
@@ -388,6 +581,7 @@ function secondSongCounterCallback(result) {
     copyToSecondarySongInfo(result);
     updateSongData(result);
     checkForSongType(result);
+    afkKicker.resetTimers();
 };
 
 function MirrorTimerText() {
@@ -400,10 +594,20 @@ const CountodwnChangeCallback = function(mutationsList, observer) {
 	MirrorTimerText();
 };
 
-// Mutation Observer for countdown timer dropping
+// Things to run at the start of the game
 function StartGameCallback() {
-	updateSongCounterLabels();
+	// updateSongCounterLabels();
     ResetSongCounter();
+    setTimeout(function(){
+        createRigTable();
+    }, 1000);
+    setTimeout(function(){ //Update dropdownlist autocomplete list. Beware, it doesn't work
+        quiz.answerInput.autoCompleteController.updateList();
+    }, 10000);
+    setTimeout(function(){ //Automatically select box 1 of the avatars
+        quiz.scoreboard.setActiveGroup("1")
+        quiz.avatarContainer.currentGroup = 1
+    }, 30000);
 };
 
 function SetupMirrorTimer() {
@@ -423,7 +627,9 @@ function ObserveAnswerShowing() {
 
 function getSongList() {
     let retriveListListener = new Listener("get all song names", function (payload) {
-        fullAnimeList = payload.names;
+        if (payload.names && payload.names.length > 0) {
+            fullAnimeList = payload.names;
+        }
     }).bindListener();
 }
 
@@ -451,19 +657,17 @@ function StartAmqScript() {
         new Listener("play next song", function (data) {
             previousSongClear();
         }).bindListener();
-
-        //pastebin = window.open('https://pastebin.com', '_blank');
     }
 }
 
-document.querySelector("#mpPlayMultiplayer").addEventListener('click', function() {
+new Listener('Host Game', function () {
     StartAmqScript();
-});
+}).bindListener();
 
-document.querySelector("#mpPlaySolo").addEventListener('click', function() {
+new Listener('Join Game', function () {
     StartAmqScript();
-});
+}).bindListener();
 
-document.querySelector("#mpRankedButton").addEventListener('click', function() {
+new Listener('Spectate Game', function () {
     StartAmqScript();
-});
+}).bindListener();
