@@ -18,7 +18,7 @@ function convertSongTypeToText(type, typeNumber) {
 
 // Get the average score of every player in the game
 function GetAverageScore() {
-    var players = document.querySelectorAll('.qpAvatarCenterContainer');
+    var players = document.querySelectorAll('.qpAvatarContainerOuter');
     var totalScore = 0;
     if (players && answerInformation[0]) {
         for (var j = 0; j < players.length; j++) {
