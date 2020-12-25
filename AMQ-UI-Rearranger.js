@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AMQ-UI-Rearranger
 // @namespace    https://github.com/blissfulyoshi
-// @version      0.4.1
+// @version      0.4.2
 // @description  Create a Song Counter in AMQ
 // @match        https://animemusicquiz.com/
 // @grant        GM_xmlhttpRequest
@@ -17,6 +17,7 @@
 var devKey = "pastebin_dev_key";
 var userKey = "pastebin_user_key";
 var gSheetUrl = "google_sheets_script_url";
+var debugMode = false;
 
 var openingCounter = 0;
 var endingCounter = 0;
@@ -32,6 +33,12 @@ var pastebinUrl = '';
 
 //separate array to track player scores only so I don't have to sort an array
 var playerScores = [];
+
+function debugLog(text) {
+    if (debugMode) {
+        console.log(text)
+    }
+}
 
 function ResetSongCounter() {
 	openingCounter = 0;
@@ -66,7 +73,7 @@ function previousSongClear() {
 }
 
 function updateUserCount() {
-	var correctCount = document.querySelectorAll('.qpAvatarAnswerContainer.rightAnswer').length;
+	var correctCount = document.querySelectorAll('.qpAvatarAnswerContainer .rightAnswer').length;
 	var totalPlayers = document.querySelectorAll('#qpScoreBoardEntryContainer .qpStandingItem').length
 	var activePlayers = document.querySelectorAll('#qpScoreBoardEntryContainer .qpStandingItem:not(.disabled)').length
     var totalCorrectAverage = correctCount / totalPlayers;
@@ -118,10 +125,10 @@ function updatePlayerAnswerArray(playerIndex, playerList, playerScore, onPlayerL
     //if starting a new game, the player array needs to be restarted to accept clean information
 
     let firstSong = parseInt(document.querySelector('#qpCurrentSongCount').innerText) === 1;
-    let firstPlayerName = playerList[0].querySelector('.qpAvatarNameContainer span').innerText;
+    let firstPlayerName = playerList[0].querySelector('.qpAvatarName').innerText;
     let resetPlayerArray = firstSong || playerList.length !== answerInformation.length || (answerInformation[0].playerName !== firstPlayerName);
     if (resetPlayerArray) {
-        let playerName = playerList[playerIndex].querySelector('.qpAvatarNameContainer span').innerText;
+        let playerName = playerList[playerIndex].querySelector('.qpAvatarName').innerText;
         answerInformation[playerIndex] = {
             playerName: playerName,
             playerScore: playerScore,
@@ -337,6 +344,9 @@ function updateAnswerList() {
         }
     }
 
+    debugLog("right answers: " + JSON.stringify(rightAnswersArray));
+    debugLog("wrong answers: " + JSON.stringify(wrongAnswersArray));
+
     document.querySelector('#OtherAnswer').innerText = 'Other';
     document.querySelector('#OtherCount').innerText = currentSongOtherCount;
     document.querySelector('#InvalidAnswer').innerText = 'Invalid Answers';
@@ -392,19 +402,22 @@ function updateCorrectPlayers() {
 }
 
 function GetAnswerInformation() {
-    let players = document.querySelectorAll('.qpAvatarCenterContainer');
-  
+    let players = document.querySelectorAll('.qpAvatarContainerOuter');
+
     //check if the player array needs to be resetted for a new game
     //playerName check is a pretty safe check if you're moving inbetween games, but definitely not the most robust
     for (var i=0; i < players.length; i++) {
-        let playerScore = parseInt(players[i].querySelector('.qpAvatarPointText').innerText);
-        let onPlayerList = !players[i].querySelector('.qpAvatarStatus').classList.contains('hide');
+        let playerScore = parseInt(players[i].querySelector('.qpAvatarScore').innerText);
+        let onPlayerList = !players[i].querySelector('.qpAvatarStatusInnerContainer').classList.contains('hide');
         let playerAnswer = players[i].querySelector('.qpAvatarAnswerText').innerText;
-        let rightAnswer = players[i].querySelector('.qpAvatarAnswerContainer').classList.contains('rightAnswer');
+        let rightAnswer = players[i].querySelector('.qpAvatarAnswerText').classList.contains('rightAnswer');
 
         playerScores[i] = playerScore;
         updatePlayerAnswerArray(i, players, playerScore, onPlayerList, playerAnswer, rightAnswer);
     }
+
+    debugLog("recorded players (all players in the game should be here):" + JSON.stringify(players));
+    debugLog("recorded answers (all answer information should be here):" + JSON.stringify(answerInformation));
 
     updateAnswerList();
     updateSongCounters();
@@ -454,6 +467,7 @@ const SongCounterCallback = function(mutationsList, observer) {
         if (mutation.type === 'attributes') {
 			if (document.querySelector('#qpAnimeNameHider').classList.contains('hide'))
 			{
+                debugLog("Song Counter started");
                 GetAnswerInformation();
                 updateUserCount();
 				updateSongCounter(openingCounter, endingCounter, insertCounter, priparaCounter, aikatsuCounter, starmyuCounter, scorePercentageCounter);
@@ -491,6 +505,28 @@ function updateSongData(result) {
     console.log(currentSongData.animeEng + ': ' + currentSongData.artist + ' - ' + currentSongData.songName + ' (' + currentSongData.type + ') ' + currentSongData.correctCount + ' (' + Math.round(currentSongData.correctCount * 100/totalPlayers) + '%)');
 }
 
+//Experimental way to get mal links
+function GetMalLink(result){
+    var animeName = result.songInfo.animeNames.english;
+    var urlEncodedAnimeName = encodeURIComponent(animeName);
+    GM_xmlhttpRequest({
+		method: "GET",
+		url: "https://api.myanimelist.net/v2/anime" + '?q=' + urlEncodedAnimeName + '&limit=1',
+		headers: {
+			"Authorization": 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjYwYTU5ZDMwOWMwMTRmNmUwOTgyYWIxM2E2MDI2Mjk2YjBjYmE5OTA1MzAwZjEzY2Q0NDc1MjM3NzAyNmI0MmM4NmM3YzE5NDk3ZTc3NDI5In0.eyJhdWQiOiIyMTVkM2U4YTVlNjQ2OGZiYTdlNjlmMmNkYWNjYTZiMiIsImp0aSI6IjYwYTU5ZDMwOWMwMTRmNmUwOTgyYWIxM2E2MDI2Mjk2YjBjYmE5OTA1MzAwZjEzY2Q0NDc1MjM3NzAyNmI0MmM4NmM3YzE5NDk3ZTc3NDI5IiwiaWF0IjoxNjA0ODc1MDQ0LCJuYmYiOjE2MDQ4NzUwNDQsImV4cCI6MTYwNzQ2NzA0NCwic3ViIjoiNDkwOTc2Iiwic2NvcGVzIjpbXX0.HsL19WpVgpJ4TFsV_Phv--5IwlK9ufoyU8FaTshjhIQ8puebE19iRSeb7DCigl1JP7X_AMIHIFjioIpD1HC8dNHoS1Xb_ESh90yIOfOIgMyqFHiFXiqACfiwLmUPCqfyMCscxOgBQDa81TORCrKAy36aiFdF-07N-BSyBfK2ZY5XJWPIZbwybOEXoecg9eEGaX1YotTdTPhBU4_LAqU9RhQBit_F5XoJtJXkPyiZijrSyMQHtO2rT0JbQzk8BQhu8u4oxIB75rqdrNN5Bkyxy79cKh3gLyqZRrJJlCPFPFIOoevOJIYqhg35hDR-XiFxU-QrmBbUUkQ7xCMPPX7-IA'
+		},
+		//data: "q=" + 'black rock' +
+		//	"&limit=" + '1',
+		onload:     function (response) {
+            var results = JSON.parse(response.response)
+            if (results.data) {
+                var id = results.data[0].node.id
+                console.log('https://myanimelist.net/anime/' + id)
+            }
+        }
+    });
+}
+
 // Put Song data in textarea and copy to clipboard
 function CopySongData() {
     document.querySelector('#songDataHolder').value = JSON.stringify(songData, null, 2);
@@ -501,9 +537,9 @@ function CopySongData() {
 // Upload the song data and copy to clipboard
 function UploadSongData() {
     //sketchy way to calculate ranked dates
-    var offset = -6;
+    var offset = -7;
     var shouldBeSafeTimeForRankedDate = new Date( new Date().getTime() + offset * 3600 * 1000);
-    var rankedLocation = shouldBeSafeTimeForRankedDate.getUTCHours() < 14 ? "Central" : "Western"
+    var rankedLocation = shouldBeSafeTimeForRankedDate.getUTCHours() < 15 ? "Central" : "Western"
     var formattedRankedDate = shouldBeSafeTimeForRankedDate.toISOString().split('T')[0];
     var fileName = rankedLocation + " Ranked Song List: " + encodeURIComponent(formattedRankedDate);
     GM_xmlhttpRequest({
@@ -582,6 +618,7 @@ function secondSongCounterCallback(result) {
     updateSongData(result);
     checkForSongType(result);
     afkKicker.resetTimers();
+    //GetMalLink(result);
 };
 
 function MirrorTimerText() {
@@ -662,6 +699,7 @@ function StartAmqScript() {
 
 new Listener('Host Game', function () {
     StartAmqScript();
+
 }).bindListener();
 
 new Listener('Join Game', function () {
