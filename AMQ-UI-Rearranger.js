@@ -507,24 +507,6 @@ function updateSongData(result) {
 
 //Experimental way to get mal links
 function GetMalLink(result){
-    var animeName = result.songInfo.animeNames.english;
-    var urlEncodedAnimeName = encodeURIComponent(animeName);
-    GM_xmlhttpRequest({
-		method: "GET",
-		url: "https://api.myanimelist.net/v2/anime" + '?q=' + urlEncodedAnimeName + '&limit=1',
-		headers: {
-			"Authorization": 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjYwYTU5ZDMwOWMwMTRmNmUwOTgyYWIxM2E2MDI2Mjk2YjBjYmE5OTA1MzAwZjEzY2Q0NDc1MjM3NzAyNmI0MmM4NmM3YzE5NDk3ZTc3NDI5In0.eyJhdWQiOiIyMTVkM2U4YTVlNjQ2OGZiYTdlNjlmMmNkYWNjYTZiMiIsImp0aSI6IjYwYTU5ZDMwOWMwMTRmNmUwOTgyYWIxM2E2MDI2Mjk2YjBjYmE5OTA1MzAwZjEzY2Q0NDc1MjM3NzAyNmI0MmM4NmM3YzE5NDk3ZTc3NDI5IiwiaWF0IjoxNjA0ODc1MDQ0LCJuYmYiOjE2MDQ4NzUwNDQsImV4cCI6MTYwNzQ2NzA0NCwic3ViIjoiNDkwOTc2Iiwic2NvcGVzIjpbXX0.HsL19WpVgpJ4TFsV_Phv--5IwlK9ufoyU8FaTshjhIQ8puebE19iRSeb7DCigl1JP7X_AMIHIFjioIpD1HC8dNHoS1Xb_ESh90yIOfOIgMyqFHiFXiqACfiwLmUPCqfyMCscxOgBQDa81TORCrKAy36aiFdF-07N-BSyBfK2ZY5XJWPIZbwybOEXoecg9eEGaX1YotTdTPhBU4_LAqU9RhQBit_F5XoJtJXkPyiZijrSyMQHtO2rT0JbQzk8BQhu8u4oxIB75rqdrNN5Bkyxy79cKh3gLyqZRrJJlCPFPFIOoevOJIYqhg35hDR-XiFxU-QrmBbUUkQ7xCMPPX7-IA'
-		},
-		//data: "q=" + 'black rock' +
-		//	"&limit=" + '1',
-		onload:     function (response) {
-            var results = JSON.parse(response.response)
-            if (results.data) {
-                var id = results.data[0].node.id
-                console.log('https://myanimelist.net/anime/' + id)
-            }
-        }
-    });
 }
 
 // Put Song data in textarea and copy to clipboard
