@@ -61,25 +61,144 @@ function onMessageHandler (target, context, msg, self) {
 	  recordGuesses(context['display-name'], commandName);
   }
   else if (commandName === '!psb') {
-		if (!percentileScoreboardCooldown) {
-			client.say(twitchChannel, 'The current percentile scoring is: ' + GetPercentileScoreboardString());
-			percentileScoreboardCooldown = true
-			setTimeout(() => {
-              percentileScoreboardCooldown = false;
-			}, (60 * 1000));
-		}
+	printPercentileScoreBoard()
   }
   else if (commandName === '!pggr') {
-		if (!percentileRulesCooldown) {
-			client.say(twitchChannel, "Welcome to the Percentile Guessing Game, where you can guess how well players in a lobby know a song. During a song's guessing phase, put a number between 0-9 where 0 means 0-10% of players will get it right, 1 means 10-20%, and 9 means 90%+. Each right answer will net you 1 point, and your total will be shown at the end of the round.");
-			percentileRulesCooldown = true
-			setTimeout(() => {
-              percentileRulesCooldown = false;
-			}, (240 * 1000));
-		}
-	  
+	printPercentileGameRules()	  
   }
   else if (commandName === '!s' || commandName.startsWith('!s ') || commandName.startsWith('!song')) {
+	printSong(commandName, target)
+  }
+  else if (commandName.replaceAll(' ', '').toLowerCase() === 'Hashire sori yo'.replaceAll(' ', '').toLowerCase()) {
+	client.say(target, 'Kaze no you ni');
+  }
+  else if (commandName.replaceAll(' ', '').toLowerCase() === 'Kaze no you ni'.replaceAll(' ', '').toLowerCase()) {
+	client.say(target, 'Tsukimihara wo');
+  }
+  else if (commandName.replaceAll(' ', '').toLowerCase() === 'Tsukimihara wo'.replaceAll(' ', '').toLowerCase()) {
+	client.say(target, 'Padoru Padoru');
+  }
+}
+
+// Convert time in seconds to 0:00
+function timeFormat(duration)
+{
+    var mins = ~~((duration % 3600) / 60);
+    var secs = ~~duration % 60;
+
+    // Output like "1:01" or "4:03:59" or "123:03:59"
+    var ret = "";
+
+    ret += mins + ":" + (secs < 10 ? "0" : "");
+    ret += secs;
+    return ret;
+}
+
+let currentPercentileGuesses = {}
+let percentileScoreboard = {}
+
+function recordGuesses(submitter, response) {
+	currentPercentileGuesses[submitter] = response;
+}
+
+function evaluateGuesses(answer) {
+	var correctAnswerers = [];
+	if (!Object.keys(currentPercentileGuesses).length) {
+		return;
+	}
+	
+	// Check all of the guesses to see who got it right
+	for (const submitter in currentPercentileGuesses) {
+		hasGuesses = true;
+		if (currentPercentileGuesses[submitter] === answer.toString()) {
+			// Give a point to the answerer and add them to the list to congratulate
+			if (percentileScoreboard[submitter]) {
+				percentileScoreboard[submitter]++
+			}
+			else {
+				percentileScoreboard[submitter] = 1;
+			}
+			
+			correctAnswerers.push(submitter);
+		}
+	}
+	
+	if (correctAnswerers.length === 0) {
+		// Verify that round of guessing is over and no one got it right
+		client.say(twitchChannel, 'No one guessed the percentile correctly');
+	}
+	else {
+		// Congratulate those who got it right
+		client.say(twitchChannel, 'Congratulations to ' + correctAnswerers.join(', ') + ' for guessing the percentile correctly');
+	}
+}
+
+// Clear the guesses
+function clearGuesses() {
+	currentPercentileGuesses = {};
+}
+
+// Clear the percentile scoreboard
+function clearPercentileScoreboard() {
+	percentileScoreboard = {};
+}
+
+function welcomePercentileGame() {
+	client.say(twitchChannel, 'The Percentile Guessing Game has started, type !pggr for more information.');
+}
+
+function printPercentileScoreBoard() {
+	if (!percentileScoreboardCooldown) {
+		client.say(twitchChannel, 'The current percentile scoring is: ' + GetPercentileScoreboardString());
+		percentileScoreboardCooldown = true
+		setTimeout(() => {
+		  percentileScoreboardCooldown = false;
+		}, (60 * 1000));
+	}
+}
+
+function printPercentileGameRules() {
+	if (!percentileRulesCooldown) {
+		client.say(twitchChannel, "Welcome to the Percentile Guessing Game, where you can guess how well players in a lobby know a song. During a song's guessing phase, put a number between 0-9 where 0 means 0-10% of players will get it right, 1 means 10-20%, and 9 means 90%+. Each right answer will net you 1 point, and your total will be shown at the end of the round.");
+		percentileRulesCooldown = true
+		setTimeout(() => {
+		  percentileRulesCooldown = false;
+		}, (240 * 1000));
+	}
+}
+
+// Print the final scoreboard for the percentile guesses
+function printFinalPercentileScoreboard() {
+	if (percentileScoreboard.length > 0) {
+		client.say(twitchChannel, 'Final percentile scoring is: ' + GetPercentileScoreboardString());
+	}
+}
+
+// Calculate the scoreboard text
+function GetPercentileScoreboardString() {
+	var sortedScoreboard = [];	
+	for (var submitter in percentileScoreboard) {
+		sortedScoreboard.push([submitter, percentileScoreboard[submitter]]);
+	}
+	
+	// End the function if no one is on the scoreboard
+	if (sortedScoreboard.length === 0) {
+		return;
+	}
+
+	sortedScoreboard.sort(function(a, b) {
+		return b[1] - a[1];
+	});
+	
+	var printedScoreBoard = "";
+	for (var i = 0; i < sortedScoreboard.length; i++) {
+		printedScoreBoard = printedScoreBoard + (i +1) + ": " + sortedScoreboard[i][0] + '(' + sortedScoreboard[i][1] + ')' + ', ';
+	}
+	
+	return printedScoreBoard;
+}
+
+function printSong(commandName, target) {
       if (songData.length) {
           var songNumber = songData.length; //default to the last song that played
           var arguments = shellWordSplit(commandName);
@@ -168,103 +287,4 @@ function onMessageHandler (target, context, msg, self) {
       else {
           client.say(target, 'No songs have played');
       }
-  }
-}
-
-// Convert time in seconds to 0:00
-function timeFormat(duration)
-{
-    var mins = ~~((duration % 3600) / 60);
-    var secs = ~~duration % 60;
-
-    // Output like "1:01" or "4:03:59" or "123:03:59"
-    var ret = "";
-
-    ret += mins + ":" + (secs < 10 ? "0" : "");
-    ret += secs;
-    return ret;
-}
-
-let currentPercentileGuesses = {}
-let percentileScoreboard = {}
-
-function recordGuesses(submitter, response) {
-	currentPercentileGuesses[submitter] = response;
-}
-
-function evaluateGuesses(answer) {
-	var correctAnswerers = [];
-	if (!Object.keys(currentPercentileGuesses).length) {
-		return;
-	}
-	
-	// Check all of the guesses to see who got it right
-	for (const submitter in currentPercentileGuesses) {
-		hasGuesses = true;
-		if (currentPercentileGuesses[submitter] === answer.toString()) {
-			// Give a point to the answerer and add them to the list to congratulate
-			if (percentileScoreboard[submitter]) {
-				percentileScoreboard[submitter]++
-			}
-			else {
-				percentileScoreboard[submitter] = 1;
-			}
-			
-			correctAnswerers.push(submitter);
-		}
-	}
-	
-	if (correctAnswerers.length === 0) {
-		// Verify that round of guessing is over and no one got it right
-		client.say(twitchChannel, 'No one guessed the percentile correctly');
-	}
-	else {
-		// Congratulate those who got it right
-		client.say(twitchChannel, 'Congratulations to ' + correctAnswerers.join(', ') + ' for guessing the percentile correctly');
-	}
-}
-
-// Clear the guesses
-function clearGuesses() {
-	currentPercentileGuesses = {};
-}
-
-// Clear the percentile scoreboard
-function clearPercentileScoreboard() {
-	percentileScoreboard = {};
-}
-
-function welcomePercentileGame() {
-	client.say(twitchChannel, 'The Percentile Guessing Game has started, type !pggr for more information.');
-}
-
-// Print the final scoreboard for the percentile guesses
-function printFinalPercentileScoreboard() {
-	if (percentileScoreboard.length > 0) {
-		client.say(twitchChannel, 'Final percentile scoring is: ' + GetPercentileScoreboardString());
-	}
-}
-
-// Calculate the scoreboard text
-function GetPercentileScoreboardString() {
-	var sortedScoreboard = [];	
-	for (var submitter in percentileScoreboard) {
-		sortedScoreboard.push([submitter, percentileScoreboard[submitter]]);
-	}
-	
-	// End the function if no one is on the scoreboard
-	if (sortedScoreboard.length === 0) {
-		return;
-	}
-
-	sortedScoreboard.sort(function(a, b) {
-		return b[1] - a[1];
-	});
-	
-	var printedScoreBoard = "";
-	for (var i = 0; i < sortedScoreboard.length; i++) {
-		printedScoreBoard = printedScoreBoard + (i +1) + ": " + sortedScoreboard[i][0] + '(' + sortedScoreboard[i][1] + ')' + ', ';
-	}
-	
-	return printedScoreBoard;
 }
