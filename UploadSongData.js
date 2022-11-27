@@ -1,4 +1,5 @@
 // Upload the song data
+// Variable(s) that need to be defined: twitchChannel
 function UploadSongData() {
     var gistSongDataSubmissionRequest = UploadSongDataGist();
     gistSongDataSubmissionRequest.done(function (songDataResponse) {
@@ -16,6 +17,9 @@ function UploadSongData() {
     });
 }
 
+// Upload song data to github Gist
+// Variable(s) that need to be defined: songData, githubToken
+// Dependent Functions: getRankedLocation, GetEndGameSummary
 function UploadSongDataGist(){
 	//way to calculate ranked that works for me
     var shouldBeSafeTimeForRankedDate = new Date();
@@ -42,8 +46,9 @@ function UploadSongDataGist(){
     });
 }
 
-//Save the gist url to gdocs
-//partially copied from https://github.com/YokipiPublic/AMQ/blob/master/FTFRemoteUpdate.user.js
+// Save the gist url to gdocs
+// Partially copied from https://github.com/YokipiPublic/AMQ/blob/master/FTFRemoteUpdate.user.js
+// Variable(s) that need to be defined: gSheetUrl
 function UploadGistUrlToSheets(urlToUpload) {
 	var data = {jsonUrl: urlToUpload};
 	var url = gSheetUrl;
